@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/table"
 import { Button } from "./ui/button"
 import type { TodoResponse } from "@/types"
-import { formatDate } from "@/lib/utils"
 import { TodoForm } from "@/components/TodoForm";
 import { Input } from "./ui/input";
 
@@ -135,7 +134,7 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
               <TableCell 
                 className={`text-right font-medium ${todo.is_completed ? 'line-through italic text-gray-500' : ''}`}
               >
-                {formatDate(todo.created_at)}
+                {todo.created_at}
               </TableCell>
               <TableCell
                 className="flex gap-2 invisible group-hover:visible">

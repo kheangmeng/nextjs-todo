@@ -4,13 +4,20 @@ import { Suspense } from "react";
 import { TodoTable } from "@/components/TodoTable";
 import { Loader2Icon } from "lucide-react";
 import { TodoResponse } from "@/types";
+import { formatDate } from "@/lib/utils";
 
 export default async function Home({ searchParams }: { searchParams: { query: string } }) {
   const { query } = await searchParams
   let todos: TodoResponse[] = []
   try {
     const data = await fetch(`${process.env.NEXT_PUBLIC_API}/api/todo?query=${query}`)
-    todos = (await data.json()).todos || []  
+    todos = (await data.json()).todos || []
+    if(todos.length > 0) {
+      todos = todos.map((todo: TodoResponse) => ({
+        ...todo,
+        created_at: formatDate(todo.created_at),
+      }))
+    }
   } catch (error) {
     
   }
