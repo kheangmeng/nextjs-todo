@@ -7,9 +7,9 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 export async function GET(request: NextRequest) {
   let res;
   const { searchParams } = new URL(request.url)
-  const query = searchParams.get('query') || ''
+  const query = searchParams.get('query')
   try {
-    if (query) {
+    if (query !== 'undefined' && query !== undefined) {
       res = await sql`SELECT * FROM todos WHERE todo ILIKE ${'%' + query + '%'} ORDER BY created_at DESC;`;
     } else {
       res = await sql`SELECT * FROM todos ORDER BY created_at DESC;`;
