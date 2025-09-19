@@ -119,7 +119,7 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
               <TableCell 
                 className={`font-medium ${todo.is_completed ? 'line-through italic text-gray-500' : ''}`}
               >
-                #{todo.id}
+                {todo.id}
               </TableCell>
               <TableCell 
                 className={`font-medium ${todo.is_completed ? 'line-through italic text-gray-500' : ''}`}

@@ -101,7 +101,7 @@ export function TodoForm({ todos, todoItem, resetTodoItem }: TodoFormProps) {
         value={todo}
         onChange={handleChange}
       />
-      <Button type="submit" disabled={!todo.trim() || todo.length <= 3 || existTodo || loading}>
+      <Button type="submit" disabled={!todo.trim() || existTodo || loading}>
         {loading && <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />}
         {todoItem ? "Update Todo" : "Add Todo"}
       </Button>
