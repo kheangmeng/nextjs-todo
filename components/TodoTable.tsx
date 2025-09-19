@@ -23,6 +23,7 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
   const searchParams = useSearchParams()
   const query = searchParams.get('query');
 
+  const [isPending, startTransition] = React.useTransition();
   const [item, setItem] = React.useState<TodoResponse>();
   const [loading, setLoading] = React.useState<'deleting' | 'updating' | ''>('');
   const [filter, setFilter] = React.useState<string>(query || '');
@@ -75,7 +76,9 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
   const handleSearchTodo = async (query: string) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
-      router.push(`/?query=${query}`)
+      startTransition(() => {
+        router.push(`/?query=${query}`)
+      })
     }, 500);
   }
 
@@ -89,7 +92,7 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
     
   return (<>
     <TodoForm todos={todos || []} todoItem={item} resetTodoItem={() => setItem(undefined)} />
-    <div>
+    <div className="w-[900]">
       <Input 
         className="w-full md:w-1/2 mb-2" 
         type="text" 
@@ -98,7 +101,7 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
         onChange={(e) => handleSearchTodo(e.target.value)}
       />
     
-      <Table>
+      <Table className="w-full">
         {noFilterFound()}
         <TableHeader>
           <TableRow>
@@ -110,7 +113,11 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
           </TableRow>
         </TableHeader>
         <TableBody className="border-collapse">
-          {todos.map((todo: TodoResponse) => (
+          {isPending ? 
+              <TableRow>
+                <TableCell colSpan={5} className="text-center"><Loader2Icon className="mx-auto h-6 w-6 animate-spin" /></TableCell>
+              </TableRow> 
+            : todos.map((todo: TodoResponse) => (
             <TableRow 
               key={todo.id} 
               className="group strikeout"
