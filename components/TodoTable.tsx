@@ -14,6 +14,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "./ui/button"
 import type { TodoResponse } from "@/types"
 import { TodoForm } from "@/components/TodoForm";
@@ -89,10 +100,34 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
       </TableCaption>
     }
   }
+
+  function DeleteProductDialog({ id }: { id: string }) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button size="sm" variant="destructive" disabled={loading === 'deleting'}>
+          {loading === 'deleting' ? <Loader2Icon className="h-4 w-4 animate-spin" /> : 'Delete'}
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete this todo from servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={() => handleDeleteTodo(id)}>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
     
   return (<>
     <TodoForm todos={todos || []} todoItem={item} resetTodoItem={() => setItem(undefined)} />
-    <div className="w-[900]">
+    <div className="w-[450] md:w-[1000]">
       <Input 
         className="w-full md:w-1/2 mb-2" 
         type="text" 
@@ -146,9 +181,7 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
               <TableCell
                 className="flex gap-2 invisible group-hover:visible">
                   <Button size="sm" variant="default" onClick={() => setItem(todo)}>Edit</Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDeleteTodo(todo.id)}>
-                    {loading === 'deleting' ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : 'Delete'}
-                  </Button>
+                  <DeleteProductDialog id={todo.id} />
                   <Button size="sm" variant="outline" onClick={() => handleToggleCompleteTodo(todo.id)}>
                     {loading === 'updating' ? 
                         <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> 
