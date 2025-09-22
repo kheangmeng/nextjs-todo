@@ -1,7 +1,5 @@
 import { revalidatePath } from "next/cache"
-import postgres from 'postgres';
-
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+import sql from '@/lib/db';
 
 export async function PUT(request: Request, { params }: { params: Promise<{ itemId: string }>}) {
   const { itemId } = await params
