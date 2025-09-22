@@ -6,6 +6,7 @@ import { TodoTable } from '@/components/TodoTable'
 import type { TodoResponse } from '@/types'
 import { Button } from '@/components/ui/button'
 import { logout } from '@/actions/auth-action'
+import Link from 'next/link'
 
 export default async function Page() {
   const supabase = await createClient()
@@ -23,9 +24,16 @@ export default async function Page() {
         <div>
           Home
         </div>
-        <form action={logout}>
-          <Button type='submit' className='bg-red-600'>Logout</Button>
-        </form>
+        <div className='flex gap-3'>
+          <Button type="button" asChild>
+            <Link href={'/dashboard/chats'}>
+              Chats
+            </Link>
+          </Button>
+          <form action={logout}>
+            <Button type='submit' className='bg-red-600'>Logout</Button>
+          </form>
+        </div>
       </header>
       <main className="flex flex-col gap-[15px] row-start-2 items-center sm:items-start">
         <h1>{data.user.email}</h1>

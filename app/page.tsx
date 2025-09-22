@@ -1,9 +1,11 @@
 "use server"
 
+import Link from "next/link";
 import { Suspense } from "react";
 import { TodoTable } from "@/components/TodoTable";
 import { Loader2Icon } from "lucide-react";
 import { TodoResponse } from "@/types";
+import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
 
 export default async function Home({ searchParams }: { searchParams: { query: string } }) {
@@ -19,12 +21,17 @@ export default async function Home({ searchParams }: { searchParams: { query: st
       }))
     }
   } catch (error) {
-    
+
   }
-  
+
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[15px] row-start-2 items-center sm:items-start">
+        <Button type="button" asChild>
+          <Link href={'/dashboard'}>
+            Dashboard
+          </Link>
+        </Button>
         <Suspense fallback={<Loader2Icon className="mr-2 h-8 w-8 animate-spin" />}>
           <TodoTable todos={todos} />
         </Suspense>
