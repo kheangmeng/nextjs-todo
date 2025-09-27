@@ -25,6 +25,21 @@ export function TodoForm({ todos, todoItem, resetTodoItem }: TodoFormProps) {
     else setTodo("");
   }, [todoItem])
 
+  React.useEffect(() => {
+    const onEscRemoveTodo = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setTodo("");
+      }
+    }
+    window.addEventListener('keydown', onEscRemoveTodo);
+    
+    return () => {
+      window.removeEventListener('keydown', onEscRemoveTodo);
+    }
+  }, [])
+
+
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setTodo(value);

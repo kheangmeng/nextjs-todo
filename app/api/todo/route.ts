@@ -8,9 +8,9 @@ export async function GET(request: NextRequest) {
   const query = searchParams.get('query')
   try {
     if (query !== 'undefined' && query !== undefined) {
-      res = await sql`SELECT * FROM todos WHERE todo ILIKE ${'%' + query + '%'} ORDER BY created_at DESC;`;
+      res = await sql`SELECT * FROM todos WHERE todo ILIKE ${'%' + query + '%'} ORDER BY is_completed ASC;`;
     } else {
-      res = await sql`SELECT * FROM todos ORDER BY created_at DESC;`;
+      res = await sql`SELECT * FROM todos ORDER BY is_completed ASC;`;
     }
     return Response.json({ todos: res })
   } catch (error) {

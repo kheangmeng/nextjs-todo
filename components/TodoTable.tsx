@@ -180,7 +180,7 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
               </TableCell>
               <TableCell
                 className="flex gap-2 invisible group-hover:visible">
-                  <Button size="sm" variant="default" onClick={() => setItem(todo)}>Edit</Button>
+                  { !todo.is_completed && <Button size="sm" variant="default" onClick={() => setItem(todo)}>Edit</Button>}
                   <DeleteProductDialog id={todo.id} />
                   <Button size="sm" variant="outline" onClick={() => handleToggleCompleteTodo(todo.id)}>
                     {loading === 'updating' ? 
