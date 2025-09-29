@@ -1,7 +1,5 @@
 "use server"
 
-import { Suspense } from "react";
-import { Loader2Icon } from "lucide-react";
 import PosForm from "@/components/PosForm";
 import type { Discount, Promotion, ItemInfo } from '@/contexts/usePosContext';
 
@@ -16,7 +14,6 @@ const getDiscounts = async () => {
           price: todo.price,
         }))
       }
-      return discounts 
   } catch (error) {
     console.log('error discount:', error)
   }
@@ -33,7 +30,6 @@ const getPromotions = async () => {
         price: todo.price,
       }))
     }
-    return promotions
   } catch (error) {
     console.log('error promotion:', error)
   }
@@ -50,7 +46,6 @@ const getItems = async () => {
         price: todo.price,
       }))
     }
-    return items
   } catch (error) {
     console.log('error item:', error)
   }

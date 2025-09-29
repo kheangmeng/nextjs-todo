@@ -7,6 +7,11 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Hamburger, BadgeDollarSign, BadgePercent, Trash } from "lucide-react"
 import 
   ContextOrderProvider, 
@@ -70,9 +75,9 @@ function PosContent() {
         <div className="relative">
           <h1 className="bg-gradient text-center text-2xl font-bold py-5 px-3 border rounded-full border-b-2 border-gray-300">POS</h1>
           <Badge
-            className="absolute top-0 left-10 rounded-full bg-cyan-600"
+            className="absolute top-0 left-10 rounded-full bg-orange-600"
           >
-            Basic
+            Beta
           </Badge>
         </div>
       </div>
@@ -133,7 +138,15 @@ function ItemCard({ item, addCard }: { item: ItemInfo, addCard: (dis?: Discount,
         <div>{item.name}</div>
         <div>{formatCurrency(item.price)}</div>
         <div className="flex flex-row gap-2 w-full">
-          <BadgeDollarSign />
+          
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <BadgeDollarSign />
+            </TooltipTrigger>
+            <TooltipContent>
+              Discount
+            </TooltipContent>
+          </Tooltip>
           <div className="flex flex-row gap-2 items-center justify-center">
             { posState?.discounts.map((dis: Discount) => (
                 <div className="flex items-center gap-1" key={dis.name + item.name}>
@@ -152,7 +165,14 @@ function ItemCard({ item, addCard }: { item: ItemInfo, addCard: (dis?: Discount,
           </div>
         </div>
         <div className="flex flex-row gap-2 w-full">
-          <BadgePercent />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <BadgePercent />
+            </TooltipTrigger>
+            <TooltipContent>
+              Promotion
+            </TooltipContent>
+          </Tooltip>
           <div className="flex flex-row gap-2 items-center justify-center">
             { posState?.promotions.map((promo: Promotion) => (
                 <div className="flex items-center gap-1" key={promo.name + item.name}>
