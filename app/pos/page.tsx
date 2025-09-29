@@ -52,7 +52,8 @@ const getItems = async () => {
   return items
 }
 
-export default async function Page() {
+export default async function Page({ searchParams }: { searchParams: { query: string } }) {
+  const { query } = await searchParams
   const discounts = getDiscounts()
   const promotions = getPromotions()
   const items = getItems()
