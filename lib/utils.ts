@@ -5,6 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export async function fetcher(url: string, options?: RequestInit) {
+  const baseURL = process.env.NEXT_PUBLIC_API;
+  return fetch(baseURL + url, options).then(res => res.json());
+}
+
 export const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', {
