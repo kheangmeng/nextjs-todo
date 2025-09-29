@@ -19,29 +19,6 @@ import ContextPosProvider, { usePosContext } from "@/contexts/usePosContext"
 import { formatCurrency } from "@/lib/utils"
 import type { Discount, Promotion, ItemInfo } from '@/contexts/usePosContext';
 
-// const discounts: Discount[] = [
-//   { name: '1.2', price: 1.2 },
-//   { name: '3.8', price: 3.8 },
-//   { name: '7.3', price: 7.3 },
-// ]
-// const promotions: Promotion[] = [
-//   { name: '10.2', price: 10.2 },
-//   { name: '50.8', price: 50.8 },
-//   { name: '70.3', price: 70.3 },
-// ]
-// const items: ItemInfo[] = [
-//   { name: 'Hamburger', price: 3.12 },
-//   { name: 'Pizza', price: 15.25 },
-//   { name: 'Sandwich', price: 2.8 },
-//   { name: 'Salad', price: 4.5 },
-//   { name: 'Chicken drum', price: 3.75 },
-//   { name: 'Coca cola', price: 2.5 },
-//   { name: 'Fanta', price: 2.5 },
-//   { name: 'Sprite', price: 2.5 },
-//   { name: 'Pepsi', price: 2.5 },
-//   { name: 'Water', price: 1.5 },
-// ]
-
 interface PosProps {
   discounts: Promise<Discount[]>;
   promotions: Promise<Promotion[]>;

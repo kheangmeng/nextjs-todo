@@ -1,23 +1,30 @@
 "use server"
 
 import { Suspense } from "react";
+import { Loader2Icon } from "lucide-react";
 import PosForm from "@/components/PosForm";
 import type { Discount, Promotion, ItemInfo } from '@/contexts/usePosContext';
 
 const getDiscounts = async () => {
   let discounts: Discount[] = []
+  try {
     const data = await fetch(`${process.env.NEXT_PUBLIC_API}/api/discount`)
-    discounts = (await data.json()).discounts || []
-    if(discounts.length > 0) {
-      discounts = discounts.map((todo: Discount) => ({
-        name: todo.name,
-        price: todo.price,
-      }))
-    }
-    return discounts
+      discounts = (await data.json()).discounts || []
+      if(discounts.length > 0) {
+        discounts = discounts.map((todo: Discount) => ({
+          name: todo.name,
+          price: todo.price,
+        }))
+      }
+      return discounts 
+  } catch (error) {
+    console.log('error discount:', error)
+  }
+  return discounts
 }
 const getPromotions = async () => {
   let promotions: Promotion[] = []
+  try {
     const data = await fetch(`${process.env.NEXT_PUBLIC_API}/api/promotion`)
     promotions = (await data.json()).promotions || []
     if(promotions.length > 0) {
@@ -27,9 +34,14 @@ const getPromotions = async () => {
       }))
     }
     return promotions
+  } catch (error) {
+    console.log('error promotion:', error)
+  }
+  return promotions
 }
 const getItems = async () => {
   let items: ItemInfo[] = []
+  try {
     const data = await fetch(`${process.env.NEXT_PUBLIC_API}/api/item`)
     items = (await data.json()).items || []
     if(items.length > 0) {
@@ -39,6 +51,10 @@ const getItems = async () => {
       }))
     }
     return items
+  } catch (error) {
+    console.log('error item:', error)
+  }
+  return items
 }
 
 export default async function Page() {
@@ -46,9 +62,5 @@ export default async function Page() {
   const promotions = getPromotions()
   const items = getItems()
 
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <PosForm discounts={discounts} promotions={promotions} items={items}/>
-    </Suspense>
-  )
+  return <PosForm discounts={discounts} promotions={promotions} items={items}/>
 }
