@@ -95,8 +95,8 @@ function PosContent() {
             <ActionGroup />
           </div>
         </div>
-        <div className="w-full md:w-1/3 border-l-2 border-gray-300 pl-5 flex flex-col justify-between">
-          <div className="flex flex-col">
+        <div className="w-full md:w-1/3 border-l-2 border-gray-300 flex flex-col justify-between">
+          <div className="flex flex-col pl-5">
             <div className="static"><OrderLabel /></div>
             <div className="flex flex-col gap-2 overflow-y-scroll h-[650px]">
               { 
@@ -106,7 +106,7 @@ function PosContent() {
             </div>
           </div>
           <div className="border-t-2 border-gray-300 pt-3">
-            <OrderTotal />
+            <div className="pl-5"><OrderTotal /></div>
           </div>
         </div>
       </Card>
@@ -114,7 +114,7 @@ function PosContent() {
   )
 }
 
-const onPay = async () => {
+const onPayment = async () => {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API}/api/pay`, {
       method: 'POST',
@@ -133,28 +133,40 @@ const onPay = async () => {
   return false
 }
 function ActionGroup() {
+  const [lock, setLock] = useState(false)
+  const [save, setSave] = useState('')
   const orders = useOrderContext()
-  const dispatch = useOrderDispatch();
-  const [state, action, pending ] = useActionState(onPay, false)
 
-  const handlePay = () => {
+  return <div className="flex flex-row flex-wrap md:flex-nowrap gap-2 md:items-center md:justify-center">
+    <Button className="basis-1/5" onClick={() => setLock(!lock)}>{lock ? 'Unlock' : 'Lock'}</Button>
+    <Button 
+      className="basis-1/5" 
+      disabled={ lock || orders.length === 0} 
+      onClick={() => setSave('save')}
+    >Save</Button>
+    <ActionPay disabled={ lock || save==''} onPay={() => setSave('')}/>
+  </div>
+}
+
+function ActionPay({ onPay, ...props}: React.ComponentProps<"button"> & { onPay: () => void }){
+  const dispatch = useOrderDispatch();
+  const [state, action, pending ] = useActionState(onPayment, false)
+
+  const handlePayment = () => {
     action();
     if (dispatch) {
       dispatch({ type: 'init' });
+      onPay();
     }
   };
 
-  return <div className="flex flex-row flex-wrap md:flex-nowrap gap-2 md:items-center md:justify-center">
-    <Button className="basis-1/5">Lock</Button>
-    <Button className="basis-1/5">Save</Button>
-    <Button 
-      disabled={orders.length === 0}
-      className="basis-1/5"
-      onClick={() => {startTransition(handlePay)}}
-    >
-      { pending ? <Loader2Icon className="animate-spin" /> : 'Pay'}
-    </Button>
-  </div>
+  return <Button 
+    className="basis-1/5"
+    onClick={() => {startTransition(handlePayment)}}
+    {...props}
+  >
+    { pending ? <Loader2Icon className="animate-spin" /> : 'Pay'}
+  </Button>
 }
 
 function ItemCard({ item, addCard }: { item: ItemInfo, addCard: (dis?: Discount, promo?: Promotion) => void}) {
