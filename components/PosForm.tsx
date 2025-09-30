@@ -1,18 +1,19 @@
 'use client'
 
-import { use, useState } from "react"
+import { startTransition, use, useActionState, useState } from "react"
 import * as motion from "motion/react-client"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { toast } from "sonner"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Hamburger, BadgeDollarSign, BadgePercent, Trash } from "lucide-react"
+import { Hamburger, BadgeDollarSign, BadgePercent, Trash, Loader2Icon } from "lucide-react"
 import 
   ContextOrderProvider, 
   {
@@ -113,11 +114,46 @@ function PosContent() {
   )
 }
 
+const onPay = async () => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API}/api/pay`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+    toast.success("Pay successfully!");
+    return true
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+      toast.error("Failed to add todo!");
+    }
+  }
+  return false
+}
 function ActionGroup() {
+  const orders = useOrderContext()
+  const dispatch = useOrderDispatch();
+  const [state, action, pending ] = useActionState(onPay, false)
+
+  const handlePay = () => {
+    action();
+    if (dispatch) {
+      dispatch({ type: 'init' });
+    }
+  };
+
   return <div className="flex flex-row flex-wrap md:flex-nowrap gap-2 md:items-center md:justify-center">
     <Button className="basis-1/5">Lock</Button>
     <Button className="basis-1/5">Save</Button>
-    <Button className="basis-1/5">Pay</Button>
+    <Button 
+      disabled={orders.length === 0}
+      className="basis-1/5"
+      onClick={() => {startTransition(handlePay)}}
+    >
+      { pending ? <Loader2Icon className="animate-spin" /> : 'Pay'}
+    </Button>
   </div>
 }
 

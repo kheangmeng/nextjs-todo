@@ -4,7 +4,7 @@ import type { Discount, Promotion } from '@/contexts/usePosContext';
 type actionType = 'init' | 'add' | 'remove' | 'increase' | 'decrease';
 export interface OrderAction {
 	type: actionType;
-	payload: OrderState;
+	payload?: OrderState;
 }
 export interface OrderState {
 	id: string;
@@ -22,14 +22,14 @@ const OrderDispatch = createContext<Dispatch<OrderAction> | null>(null);
 function orderReducer(state: OrderState[], action: OrderAction): OrderState[] {
 	switch (action.type) {
 		case 'init':
-			return [action.payload as OrderState];
+			return action.payload ? [action.payload as OrderState] : [];
 		case 'add':
-			return [...state, action.payload];
+			return action.payload ? [...state, action.payload] : state;
 		case 'remove':
-			return state.filter(item => item.id !== action.payload.id);
+			return state.filter(item => item.id !== action.payload?.id);
 		case 'increase':
 			return state.map(item => {
-				if (item.id === action.payload.id) {
+				if (item.id === action.payload?.id) {
 					return {
 						...item,
 						quantity: item.quantity + 1,
@@ -40,7 +40,7 @@ function orderReducer(state: OrderState[], action: OrderAction): OrderState[] {
 			});
 		case 'decrease':
 			return state.map(item => {
-				if (item.id === action.payload.id) {
+				if (item.id === action.payload?.id) {
 					return {
 						...item,
 						quantity: item.quantity - 1,
