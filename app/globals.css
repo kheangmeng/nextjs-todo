@@ -121,6 +121,10 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 tr.strikeout td.line-through:before {
   content: " ";
   position: absolute;
