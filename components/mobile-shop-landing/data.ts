@@ -15,6 +15,21 @@ export interface Category {
   products: Mobile[];
 }
 
+export interface CarouselSlide {
+  id: number;
+  title: string;
+  subtitle: string;
+  imageUrl: string;
+  brandId: string;
+}
+
+export interface MenuData {
+  [category: string]: {
+    brand: string;
+    products: Mobile[];
+  }[];
+}
+
 export const categories: Category[] = [
   {
     brand: 'Apple',
@@ -95,3 +110,69 @@ export const categories: Category[] = [
     ],
   },
 ];
+
+export const carouselSlides = [
+  {
+    id: 1,
+    title: 'iPhone 15 Pro',
+    subtitle: 'The Ultimate iPhone.',
+    imageUrl: 'https://images.unsplash.com/photo-1695026212133-65239b561b36?q=80&w=1600&h=800&fit=crop',
+    brandId: 'Apple',
+  },
+  {
+    id: 2,
+    title: 'Galaxy Z Fold 5',
+    subtitle: 'Unfold Your World.',
+    imageUrl: 'https://images.unsplash.com/photo-1691212497637-a1785544719d?q=80&w=1600&h=800&fit=crop',
+    brandId: 'Samsung',
+  },
+  {
+    id: 3,
+    title: 'Pixel 8 Pro',
+    subtitle: 'The most advanced Pixel camera yet.',
+    imageUrl: 'https://images.unsplash.com/photo-1696204212269-425b03c809e5?q=80&w=1600&h=800&fit=crop',
+    brandId: 'Google',
+  },
+];
+
+export const menuData = {
+  Phone: [
+    {
+      brand: 'Apple',
+      products: [
+        { id: 1, name: 'iPhone 15 Pro', imageUrl: 'https://images.unsplash.com/photo-1695026212133-65239b561b36?q=80&w=800', price: 999, specs: { screen: '6.1" ProMotion', camera: '48MP Main', battery: 'Up to 23h video' } },
+        { id: 2, name: 'iPhone 15', imageUrl: 'https://images.unsplash.com/photo-1694322308821-4b102922112e?q=80&w=800', price: 799, specs: { screen: '6.1" Super Retina', camera: '48MP Main', battery: 'Up to 20h video' } },
+      ],
+    },
+    {
+      brand: 'Samsung',
+      products: [
+        { id: 4, name: 'Galaxy S24 Ultra', imageUrl: 'https://images.unsplash.com/photo-1707130230911-3f1d3a54b324?q=80&w=800', price: 1299, specs: { screen: '6.8" Dynamic AMOLED', camera: '200MP Main', battery: '5000mAh' } },
+        { id: 5, name: 'Galaxy Z Fold 5', imageUrl: 'https://images.unsplash.com/photo-1691212497637-a1785544719d?q=80&w=800', price: 1799, specs: { screen: '7.6" Foldable', camera: '50MP Main', battery: '4400mAh' } },
+      ],
+    },
+    {
+      brand: 'Google',
+      products: [
+        { id: 6, name: 'Pixel 8 Pro', imageUrl: 'https://images.unsplash.com/photo-1696204212269-425b03c809e5?q=80&w=800', price: 999, specs: { screen: '6.7" Super Actua', camera: '50MP Octa-PD', battery: '5050mAh' } },
+      ],
+    },
+  ],
+  Tablet: [
+     {
+      brand: 'iPad',
+      products: [
+        { id: 8, name: 'iPad Pro', imageUrl: 'https://images.unsplash.com/photo-1587464838239-fe383514695b?q=80&w=800', price: 799, specs: { screen: '11" Liquid Retina', camera: '12MP Wide', battery: 'Up to 10h' } },
+        { id: 9, name: 'iPad Air', imageUrl: 'https://images.unsplash.com/photo-1621793333363-393bf7f13bbe?q=80&w=800', price: 599, specs: { screen: '10.9" Liquid Retina', camera: '12MP Wide', battery: 'Up to 10h' } },
+      ],
+    },
+  ],
+  Watch: [
+     {
+      brand: 'AppleWatch',
+      products: [
+        { id: 10, name: 'Apple Watch Ultra 2', imageUrl: 'https://images.unsplash.com/photo-1695346011252-c380b2a5912d?q=80&w=800', price: 799, specs: { screen: '49mm case', camera: 'N/A', battery: 'Up to 36h' } },
+      ],
+    },
+  ],
+};

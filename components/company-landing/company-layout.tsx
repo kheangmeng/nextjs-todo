@@ -1,4 +1,7 @@
+'use client'
+
 import React from 'react';
+import Image from 'next/image';
 import Navbar from './navbar';
 import FooterSection from './footer-section';
 import { Lightbulb, Users, Briefcase, Mail, Check, X } from 'lucide-react';
@@ -20,6 +23,10 @@ const Section = ({ id, title, children, bgColor = 'bg-white', textColor = 'text-
 );
 
 function App() {
+  const imageLoader = ({ src, width, quality }: { src: string; width: number; quality?: number }) => {
+    return `https://images.unsplash.com/${src}?w=${width}&q=${quality || 75}`
+  }
+
   return (
     <div>
       <Navbar />
@@ -57,8 +64,12 @@ function App() {
               </p>
             </div>
             <div className="flex justify-center">
-              <img
-                src="https://images.unsplash.com/photo-1552581234-26160f608093?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=800"
+              <Image
+                loader={imageLoader}
+                priority={true}
+                src="photo-1552581234-26160f608093?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=800"
+                width={800}
+                height={800}
                 alt="Our Team"
                 className="rounded-lg shadow-xl w-full md:w-4/5 object-cover"
               />
@@ -237,12 +248,6 @@ function App() {
         </Section>
       </main>
 
-      {/* Footer */}
-      {/* <footer className="bg-gray-900 text-gray-300 py-8 px-4 text-center">
-        <div className="container mx-auto">
-          <p>&copy; {new Date().getFullYear()} OurCompany. All rights reserved.</p>
-        </div>
-      </footer> */}
       <FooterSection />
     </div>
   );
