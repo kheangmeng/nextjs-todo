@@ -114,23 +114,23 @@ export const categories: Category[] = [
 export const carouselSlides = [
   {
     id: 1,
-    title: 'iPhone 15 Pro',
+    title: 'iPhone 17 Pro Max',
     subtitle: 'The Ultimate iPhone.',
-    imageUrl: 'https://images.unsplash.com/photo-1695026212133-65239b561b36?q=80&w=1600&h=800&fit=crop',
+    imageUrl: '/mobiles/apple-iphone-17-pro-max-1.jpg',
     brandId: 'Apple',
   },
   {
     id: 2,
-    title: 'Galaxy Z Fold 5',
+    title: 'Galaxy Z Fold 7',
     subtitle: 'Unfold Your World.',
-    imageUrl: 'https://images.unsplash.com/photo-1691212497637-a1785544719d?q=80&w=1600&h=800&fit=crop',
+    imageUrl: '/mobiles/samsung-galaxy-z-fold7-3.jpg',
     brandId: 'Samsung',
   },
   {
     id: 3,
-    title: 'Pixel 8 Pro',
+    title: 'Pixel 10 Pro Fold',
     subtitle: 'The most advanced Pixel camera yet.',
-    imageUrl: 'https://images.unsplash.com/photo-1696204212269-425b03c809e5?q=80&w=1600&h=800&fit=crop',
+    imageUrl: '/mobiles/google-pixel-10-pro-fold-00.jpg',
     brandId: 'Google',
   },
 ];

@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { carouselSlides } from './data';
@@ -15,8 +16,8 @@ const Carousel = () => {
         <div className="flex">
           {carouselSlides.map((slide) => (
             <div className="flex-grow-0 flex-shrink-0 w-full" key={slide.id}>
-              <div className="relative h-[60vh] md:h-[80vh]">
-                <img src={slide.imageUrl} alt={slide.title} className="w-full h-full object-cover" />
+              <div className="relative h-[50vh] md:h-[60vh]">
+                <Image priority={true} fill={true} src={slide.imageUrl} alt={slide.title} className="w-full h-full object-contain" />
                 <div className="absolute inset-0 bg-black/50 flex flex-col justify-center items-center text-center text-white p-4">
                   <h1 className="text-4xl md:text-6xl font-extrabold mb-2">{slide.title}</h1>
                   <p className="text-lg md:text-2xl opacity-90">{slide.subtitle}</p>
