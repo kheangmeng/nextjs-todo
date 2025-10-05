@@ -152,3 +152,19 @@ td { position: relative; }
   background: #2a9b3f;
   background: linear-gradient(90deg,rgba(42, 155, 63, 1) 0%, rgba(87, 199, 133, 1) 26%, rgba(121, 204, 122, 1) 53%, rgba(237, 221, 83, 1) 87%);
 }
+
+.loading-container {
+  margin-top: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  height: 100vh; /* Example for centering */
+}
+
+.loading-circle {
+  width: 20px;
+  height: 20px;
+  background-color: rgb(255, 112, 193);
+  border-radius: 50%;
+  margin: 0 5px;
+}

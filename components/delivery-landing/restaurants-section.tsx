@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Restaurant } from './data';
 import Section from './Section';
+import LoadingDot from '../loading-dot';
 
 const StarIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -66,7 +67,7 @@ export default function AllRestaurantsSection({ filteredRestaurants }: { filtere
           <p className="text-gray-500">Try adjusting your filters.</p>
         </div>
       )}
-      {loading && <div className="text-center col-span-full py-8 text-pink-500 font-semibold">Loading more...</div>}
+      {loading && <LoadingDot />}
     </Section>
   );
 };
