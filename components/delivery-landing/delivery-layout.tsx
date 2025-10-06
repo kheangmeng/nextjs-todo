@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Restaurant, duplicateRestaurants, foodTypes, promotions} from './data';
 import AllRestaurantsSection from './restaurants-section';
@@ -6,6 +8,7 @@ import FilterSidebar from './filter-sidebar';
 import Tabs, { type TabBar } from './tab-bar';
 import Section from './Section';
 import TimeAnimation from '../time-animation'
+import useClearOnEscape from '@/hooks/use-clear-on-escape';
 
 const allRestaurants = duplicateRestaurants();
 
@@ -165,6 +168,7 @@ export interface Filter {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabBar>('Delivery');
+  useClearOnEscape();
 
   const initialFilters = {
     sortBy: 'Relevance',
