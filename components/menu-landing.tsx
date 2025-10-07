@@ -21,6 +21,9 @@ export default function MenuLanding() {
         <Button asChild>
           <Link href="/delivery">Delivery</Link>
         </Button>
+        <Button asChild>
+          <Link href="/job">Job</Link>
+        </Button>
         {/* <div className="bg-muted/50 aspect-video rounded-xl"></div>
         <div className="bg-muted/50 aspect-video rounded-xl"></div>
         <div className="bg-muted/50 aspect-video rounded-xl"></div> */}

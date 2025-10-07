@@ -168,3 +168,15 @@ td { position: relative; }
   border-radius: 50%;
   margin: 0 5px;
 }
+
+@keyframes color-change {
+  0% { background-color: blue; }
+  50% { background-color: red; }
+  100% { background-color: green; }
+}
+.badge {
+  animation-name: color-change;
+  animation-duration: 1s; /* Time for one full cycle */
+  animation-iteration-count: infinite; /* Loop indefinitely */
+  animation-direction: alternate; /* Animate back and forth */
+}
