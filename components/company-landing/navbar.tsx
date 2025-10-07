@@ -36,7 +36,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-white/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+    <>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
@@ -85,7 +85,7 @@ const Navbar = () => {
           ))}
         </div>
       </div>
-    </nav>
+    </>
   );
 };
 

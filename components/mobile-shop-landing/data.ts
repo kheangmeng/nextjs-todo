@@ -30,6 +30,8 @@ export interface MenuData {
   }[];
 }
 
+export const brands = ['Apple', 'Samsung', 'Google', 'OnePlus', 'Xiaomi', 'Sony', 'HTC', 'VIVO', 'OPPO', 'Huawei', 'Motorola', 'Realme', 'ASUS', 'LENOVO', 'Tecno', 'ZTE'];
+
 export const categories: Category[] = [
   {
     brand: 'Apple',

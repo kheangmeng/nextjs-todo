@@ -1,7 +1,6 @@
-import React from 'react';
+import { brands } from './data';
 
 const Marquee = () => {
-  const brands = ['Apple', 'Samsung', 'Google', 'OnePlus', 'Xiaomi', 'Sony'];
   const marqueeBrands = [...brands, ...brands];
 
   return (

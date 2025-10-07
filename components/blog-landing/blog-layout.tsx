@@ -80,11 +80,11 @@ export default function App() {
       {currentPage === 'home' && <BlogHome posts={blogPosts} onSelectPost={handleSelectPost} />}
       {currentPage === 'detail' && selectedPost && (
         <BlogDetail
-            post={selectedPost}
-            onGoHome={handleGoHome}
-            onSelectPost={handleSelectPost}
+          post={selectedPost}
+          onGoHome={handleGoHome}
+          onSelectPost={handleSelectPost}
         />
-        )}
+      )}
       <Footer />
     </div>
   );
