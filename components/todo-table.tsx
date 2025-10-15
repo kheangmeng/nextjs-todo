@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "./ui/button"
 import type { TodoResponse } from "@/types"
-import { TodoForm } from "@/components/TodoForm";
+import { TodoForm } from "@/components/todo-form";
 import { Input } from "./ui/input";
 
 export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
@@ -88,7 +88,7 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       startTransition(() => {
-        router.push(`/?query=${query}`)
+        router.push(`/todo?query=${query}`)
       })
     }, 500);
   }
@@ -124,18 +124,18 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
     </AlertDialog>
   )
 }
-    
+
   return (<>
     <TodoForm todos={todos || []} todoItem={item} resetTodoItem={() => setItem(undefined)} />
     <div className="w-[450] md:w-[1000]">
-      <Input 
-        className="w-full md:w-1/2 mb-2" 
-        type="text" 
-        placeholder="Filter todos..." 
-        defaultValue={filter} 
+      <Input
+        className="w-full md:w-1/2 mb-2"
+        type="text"
+        placeholder="Filter todos..."
+        defaultValue={filter}
         onChange={(e) => handleSearchTodo(e.target.value)}
       />
-    
+
       <Table className="w-full">
         {noFilterFound()}
         <TableHeader>
@@ -148,32 +148,32 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
           </TableRow>
         </TableHeader>
         <TableBody className="border-collapse">
-          {isPending ? 
+          {isPending ?
               <TableRow>
                 <TableCell colSpan={5} className="text-center"><Loader2Icon className="mx-auto h-6 w-6 animate-spin" /></TableCell>
-              </TableRow> 
+              </TableRow>
             : todos.map((todo: TodoResponse) => (
-            <TableRow 
-              key={todo.id} 
+            <TableRow
+              key={todo.id}
               className="group strikeout"
             >
               {/* style={{ display: todo.todo.toLowerCase().includes(filter.toLowerCase()) ? '' : 'none' }} */}
-              <TableCell 
+              <TableCell
                 className={`font-medium ${todo.is_completed ? 'line-through italic text-gray-500' : ''}`}
               >
                 {todo.id}
               </TableCell>
-              <TableCell 
+              <TableCell
                 className={`font-medium ${todo.is_completed ? 'line-through italic text-gray-500' : ''}`}
               >
                 {todo.todo}
               </TableCell>
-              <TableCell 
+              <TableCell
                 className={`font-medium ${todo.is_completed ? 'line-through italic text-gray-500' : ''}`}
               >
                 {todo.is_completed ? 'Completed' : 'Not completed'}
               </TableCell>
-              <TableCell 
+              <TableCell
                 className={`text-right font-medium ${todo.is_completed ? 'line-through italic text-gray-500' : ''}`}
               >
                 {todo.created_at}
@@ -183,8 +183,8 @@ export function TodoTable({ todos = [] }: { todos: TodoResponse[] }) {
                   { !todo.is_completed && <Button size="sm" variant="default" onClick={() => setItem(todo)}>Edit</Button>}
                   <DeleteProductDialog id={todo.id} />
                   <Button size="sm" variant="outline" onClick={() => handleToggleCompleteTodo(todo.id)}>
-                    {loading === 'updating' ? 
-                        <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> 
+                    {loading === 'updating' ?
+                        <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
                       : todo.is_completed ? 'Mark as incomplete' : 'Mark as complete'}
                   </Button>
               </TableCell>
