@@ -1,4 +1,4 @@
-// 'use client';
+'use client';
 
 // import { useSession, signOut } from 'next-auth/react';
 // import { Button } from "@/components/ui/button"
@@ -58,9 +58,33 @@
 //   return null; // Should not be reached if all cases are handled
 // }
 
-export default async function Page() {
+import { useSession, signOut } from 'next-auth/react';
+import { Button } from "@/components/ui/button"
 
-  return (<main>
-    <h1>Dashboards</h1>
-  </main>)
+export default function Page() {
+  const { data: session, status } = useSession();
+
+  if (status === 'loading') {
+    return <p>Loading...</p>;
+  }
+
+  if (status === 'unauthenticated') {
+    return <p>Access Denied. Please sign in.</p>;
+  }
+
+  return (
+    <main>
+      <h1>Dashboards</h1>
+      <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min p-6">
+        <div>
+          <h1>Welcome, {session?.user?.username}</h1>
+          <p>Your email is: {session?.user?.email}</p>
+          <Button
+            className='mt-4 ml-2 bg-red-600 hover:bg-red-800 text-white'
+            onClick={() => signOut({ callbackUrl: '/login' })}
+          >Sign Out</Button>
+        </div>
+      </div>
+    </main>
+  )
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider"
+import { AuthProvider } from "@/components/auth-provider";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner"
@@ -35,12 +36,14 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-          {children}
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+            <Toaster
+              position="top-center"
+              richColors={true}
+            />
         </ThemeProvider>
-        <Toaster
-          position="top-center"
-          richColors={true}
-        />
       </body>
     </html>
   );
