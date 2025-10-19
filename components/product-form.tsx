@@ -42,12 +42,7 @@ const formSchema = z.object({
   description: z.string().min(2, {
     message: "Description must be at least 2 characters.",
   }),
-  price: z.preprocess((val) => {
-    if (typeof val === "string") {
-      return Number.parseInt(val);
-    }
-    return val;
-  }, z.number()),
+  price: z.coerce.number<number>(),
   discountPercentage: z.number({
     message: "Discount percentage must be a positive number.",
   }),
