@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function NotFound() {
   return (
-    <main className="flex h-[calc(100vh-220px)] flex-col items-center justify-center gap-2">
+    <div className="flex h-[calc(100vh-220px)] flex-col items-center justify-center gap-2">
       <h2 className="text-xl font-semibold">404 Not Found</h2>
       <p>Could not find the requested blog post.</p>
       <Link
@@ -11,6 +11,6 @@ export default function NotFound() {
       >
         Go Back
       </Link>
-    </main>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const externalApi = process.env.NEXT_EXTERNAL_API
+const externalApi = process.env.NEXT_PUBLIC_EXTERNAL_API
 
 function handleLogin(credentials: { email: string; password: string }) {
   return fetch(`${externalApi}/api/auth/login`, {

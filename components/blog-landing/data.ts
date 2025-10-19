@@ -23,7 +23,7 @@ export const blogPosts = [
     content: `
       <p>React has fundamentally changed how we build user interfaces. Its component-based architecture allows for reusable and maintainable code, which is why it has been adopted by companies big and small.</p>
       <p class="mt-4">The introduction of Hooks was a game-changer, simplifying state management and side effects in functional components. Now, with the ongoing development of features like Server Components, React is pushing the boundaries of performance and developer experience even further.</p>
-      <h3 class="text-2xl font-bold mt-6 mb-2 text-slate-800">What are Server Components?</h3>
+      <h3 class="text-2xl font-bold mt-6 mb-2 text-slate-800 dark:text-slate-200">What are Server Components?</h3>
       <p>Server Components allow developers to write React components that run exclusively on the server. This means they can access the backend directly, fetching data without the need for client-side API calls. The result is a faster initial page load and less JavaScript shipped to the browser. This is a significant step towards building highly performant web applications that feel snappy and responsive.</p>
       <p class="mt-4">We are excited to see how the community adopts these new patterns and the innovative applications that will be built with them. The future of React is not just about making UIs; it's about optimizing the entire data-fetching and rendering pipeline.</p>
     `
@@ -45,7 +45,7 @@ export const blogPosts = [
         <li>Your CSS bundle size remains small because you only include the utilities you actually use.</li>
         <li>It's easier to maintain a consistent design system across your application.</li>
       </ul>
-      <h3 class="text-2xl font-bold mt-6 mb-2 text-slate-800">Getting Started</h3>
+      <h3 class="text-2xl font-bold mt-6 mb-2 text-slate-800  dark:text-slate-200">Getting Started</h3>
       <p>The best way to learn Tailwind is by doing. Start a new project, install it via npm, and begin styling your components. You'll be surprised at how intuitive and fast it becomes once you get used to the class names. The official documentation is also an incredible resource with searchable guides for every CSS property you can imagine.</p>
     `
   },
@@ -61,7 +61,7 @@ export const blogPosts = [
     content: `
       <p>The ECMAScript standard continues to bring powerful new features to JavaScript every year. From optional chaining (?.) and nullish coalescing (??) to new methods for arrays and strings, the language is more robust than ever.</p>
       <p class="mt-4">Keeping up with these changes is crucial for any modern web developer. It not only allows you to write better code but also helps you understand the libraries and frameworks you use on a deeper level, as they often leverage these new features internally.</p>
-      <h3 class="text-2xl font-bold mt-6 mb-2 text-slate-800">Key Features to Know</h3>
+      <h3 class="text-2xl font-bold mt-6 mb-2 text-slate-800 dark:text-slate-200">Key Features to Know</h3>
       <ul class="list-disc list-inside mt-2 space-y-2">
         <li><strong>Array.prototype.at():</strong> A simpler way to get an element from the end of an array.</li>
         <li><strong>Object.hasOwn():</strong> A more robust way to check for an object's own properties.</li>

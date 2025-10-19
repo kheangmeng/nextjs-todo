@@ -19,8 +19,8 @@ export default function BlogDetail ({ post, onGoHome, onSelectPost }: BlogDetail
   return (
     <main className="container mx-auto px-6 py-12">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-6 md:p-10 mb-8">
-          <button 
+        <div className="bg-white dark:bg-slate-700 dark:text-white rounded-lg shadow-lg p-6 md:p-10 mb-8">
+          <button
             onClick={onGoHome}
             className="mb-8 text-blue-600 font-semibold hover:text-blue-800 transition-colors flex items-center"
           >
@@ -35,7 +35,7 @@ export default function BlogDetail ({ post, onGoHome, onSelectPost }: BlogDetail
             Posted by <strong>{post.author}</strong> on {post.date}
           </p>
           <img src={post.imageUrl.replace('600x400', '800x400')} alt={post.title} className="w-full h-auto rounded-lg mb-8 shadow-md" />
-          <div 
+          <div
             className="prose prose-lg max-w-none text-slate-700"
             dangerouslySetInnerHTML={{ __html: post.content }}
           >
@@ -51,7 +51,7 @@ export default function BlogDetail ({ post, onGoHome, onSelectPost }: BlogDetail
             </div>
           </div>
         </div>
-        
+
         {relatedPosts.length > 0 && (
           <div className="bg-white rounded-lg shadow-lg p-6 md:p-10">
             <h2 className="text-2xl font-bold text-slate-800 mb-6">Related Articles</h2>

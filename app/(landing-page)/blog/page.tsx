@@ -1,15 +1,69 @@
 import { blogPosts } from '@/components/blog-landing/data';
 import BlogPostCard from '@/components/blog-landing/blog-card';
+import { BlogCarousel } from '@/components/blog-landing/blog-carousel';
+import { BlogCardAside } from '@/components/blog-landing/blog-card-aside';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
-export default function Page() {
+async function getList() {
+  const session = await getServerSession(authOptions);
+  let remotePosts: { posts: any[] } | undefined = undefined;
+  if (session?.user?.accessToken) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.user.accessToken}`,
+        },
+      });
+      if (res.ok) {
+        remotePosts = (await res.json()) || [];
+        console.log('remote posts', remotePosts?.posts);
+      } else {
+        console.error('External API error', res.status);
+      }
+    } catch (err) {
+      console.error('fetch external blogs error', err);
+    }
+  }
+  return remotePosts?.posts
+}
+
+export default async function Page({ searchParams }: { searchParams: { query: string } }) {
+  const { query } = await searchParams
+
+  const remotePosts = await getList();
+  const postsToRender = remotePosts?.length ? remotePosts : blogPosts;
+
   return (
-    <main className="container mx-auto px-6 py-12">
-      <h1 className="text-4xl font-extrabold text-center text-slate-800 mb-12">Latest Articles</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {blogPosts.map(post => (
-          <BlogPostCard key={post.id} post={post} />
-        ))}
+    <div className=" container mx-auto px-6 py-12 dark:bg-slate-900 dark:text-white">
+      <div className="flex justify-center mb-6 h-90"><BlogCarousel /></div>
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* <h1 className="text-4xl font-extrabold text-center text-slate-800 dark:text-white mb-12">Latest Articles</h1> */}
+        <div className="w-full md:w-4/5 lg:w-4/5">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {blogPosts.map(post => (
+              <BlogPostCard key={post.id} post={post} />
+            ))}
+          </div>
+        </div>
+        <aside className="w-full md:w-1/5 lg:w-1/5">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-3 text-center">Top Rate</h2>
+          <div className="space-y-5">
+            <BlogCardAside />
+            <BlogCardAside />
+            <BlogCardAside />
+          </div>
+          <hr className="my-4" />
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-3 text-center">Popular Posts</h2>
+          <div className="space-y-5">
+            <BlogCardAside />
+            <BlogCardAside />
+            <BlogCardAside />
+          </div>
+        </aside>
       </div>
-    </main>
+    </div>
   )
 }
