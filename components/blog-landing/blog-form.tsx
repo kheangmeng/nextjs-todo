@@ -37,6 +37,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  MultiSelect,
+  MultiSelectContent,
+  MultiSelectGroup,
+  MultiSelectItem,
+  MultiSelectTrigger,
+  MultiSelectValue,
+} from "@/components/ui/multi-select"
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -56,7 +64,9 @@ const formSchema = z.object({
   }),
   image: z.string().optional(),
   isPublished: z.boolean(),
-  tagIds: z.number().array(),
+  tagIds: z.number().array().min(1, {
+    message: "At least one tag is required.",
+  }),
 })
 
 // const tags = z.coerce.number<number>()
@@ -236,7 +246,38 @@ export const BlogForm = () => {
             </FormItem>
           )}
         />
-        <Controller
+        <FormField
+          control={form.control}
+          name="tagIds"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tags</FormLabel>
+              <MultiSelect
+                values={field.value.map(String)}
+                onValuesChange={(vals: string[]) =>
+                  field.onChange(vals.map((v) => Number(v)))
+                }
+              >
+                <FormControl>
+                  <MultiSelectTrigger className="w-full">
+                    <MultiSelectValue placeholder="Select tags..." />
+                  </MultiSelectTrigger>
+                </FormControl>
+                <MultiSelectContent>
+                  <MultiSelectGroup>
+                    {tags.map((tag) => (
+                      <MultiSelectItem key={tag.id} value={String(tag.id)}>
+                        {tag.title}
+                      </MultiSelectItem>
+                    ))}
+                  </MultiSelectGroup>
+                </MultiSelectContent>
+              </MultiSelect>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* <Controller
           name="tagIds"
           control={form.control}
           render={({ field, fieldState }) => (
@@ -283,7 +324,7 @@ export const BlogForm = () => {
               )}
             </FieldSet>
           )}
-        />
+        /> */}
         <Controller
           name="isPublished"
           control={form.control}
