@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { Spinner } from "@/components/ui/spinner"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -29,6 +30,7 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"form">) {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,9 +43,10 @@ export function LoginForm({
   //   },
   // })
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
       const result = await signIn('credentials', {
@@ -56,11 +59,13 @@ export function LoginForm({
         setError('Invalid email or password');
         console.error(result.error);
       } else if (result?.ok) {
-        router.push('/dashboard');
+        router.push('/');
       }
     } catch (error) {
       console.error('Sign in failed:', error);
       setError('An unexpected error occurred.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -68,7 +73,7 @@ export function LoginForm({
     <form
       className={cn("flex flex-col gap-6", className)}
       {...props}
-      onSubmit={onSubmit}
+      onSubmit={onLogin}
     >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
@@ -95,7 +100,10 @@ export function LoginForm({
         </Field>
         <p className="text-red-500 text-center">{error}</p>
         <Field>
-          <Button type="submit">Login</Button>
+          <Button type="submit" disabled={loading}>
+            {loading && <Spinner />}
+            Login
+          </Button>
         </Field>
         <FieldSeparator>Or continue with</FieldSeparator>
         <Field>

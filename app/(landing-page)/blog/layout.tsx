@@ -1,38 +1,36 @@
 import Link from "next/link";
+import { Kbd, KbdGroup } from "@/components/ui/kbd"
 import CommandPalette from "@/components/command-palette";
 import { BlogProfileMenu } from "@/components/blog-landing/blog-profile-menu";
 
 const Header = () => {
   return (
     <header className="bg-white dark:bg-slate-900 shadow-md sticky top-0 z-10">
-      <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-6">
+      <nav className="container mx-auto px-6 py-4 flex justify-between items-start md:items-center">
+        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6">
           <Link
             href="/blog"
             className="text-2xl font-bold text-slate-800 dark:text-white cursor-pointer hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
           >
             DevInsights Blog
           </Link>
-          <div className="text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-200 p-2 rounded-lg">
+          <div className="flex justify-center border border-mute/50 text-gray-500 dark:text-gray-200 p-2 rounded-lg">
             <p className="text-sm dark:text-gray-300">
               Press
-              <kbd className="font-mono px-2 py-1 border-2 rounded-md text-gray-500 dark:text-gray-300 mx-1 shadow-md">
-                ⌘<span className="hidden md:inline">/Win</span>
-              </kbd>
-              +
-              <kbd className="font-mono px-2 py-1 border-2 rounded-md text-gray-500 dark:text-gray-300 mx-1 shadow-md">
-                K
-              </kbd>
-              to toggle the modal.
+              <KbdGroup className="mx-2">
+                <Kbd>⌘</Kbd>/<Kbd>Win</Kbd> + <Kbd>K</Kbd>
+              </KbdGroup>
+              to search.
             </p>
           </div>
         </div>
-        <ul className="flex items-center space-x-6">
+        <ul className="hidden md:flex items-center space-x-6">
           <li><a href="#" className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 transition-colors">Home</a></li>
           <li><a href="#" className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 transition-colors">About</a></li>
           <li><a href="#" className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300 transition-colors">Contact</a></li>
           <li><BlogProfileMenu /></li>
         </ul>
+        <div className="flex md:hidden"><BlogProfileMenu /></div>
         <CommandPalette />
       </nav>
     </header>

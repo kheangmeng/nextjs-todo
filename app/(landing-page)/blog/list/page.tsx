@@ -2,6 +2,7 @@
 
 import React from "react";
 import useSWR from 'swr'
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from 'next-auth/react';
 import { Loader2Icon } from "lucide-react";
@@ -27,6 +28,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input";
 import type { BlogResponse } from "@/types"
@@ -127,9 +129,13 @@ export default function Page({ blogs = [] }: { blogs: BlogResponse[] }) {
   if (error) return <div>failed to load</div>
   if (isLoading) return <div>loading...</div>
 
-  return (<div className="p-6">
+  return (<Card className="p-6 mt-12 mx-6">
     <div className="w-[450] md:w-[1000]">
       {/* {blogData?.postsResult?.length} */}
+      <div className="flex justify-between">
+        <h1 className="mb-3 text-2xl font-semibold">My Blogs</h1>
+        <Button asChild><Link href="/blog/create">Create Blog</Link></Button>
+      </div>
       <Input
         className="w-full md:w-1/2 mb-2"
         type="text"
@@ -189,5 +195,5 @@ export default function Page({ blogs = [] }: { blogs: BlogResponse[] }) {
         </TableBody>
       </Table>
     </div>
-  </div>)
+  </Card>)
 }

@@ -102,6 +102,7 @@ export const authOptions: AuthOptions = {
         return {
           ...token,
           id: user.id,
+          username: user.username,
           email: user.email,
           role: user.role,
           accessToken: user.accessToken,
