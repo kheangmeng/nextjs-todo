@@ -2,43 +2,83 @@ import { blogPosts } from '@/components/blog-landing/data';
 import BlogPostCard from '@/components/blog-landing/blog-card';
 import { BlogCarousel } from '@/components/blog-landing/blog-carousel';
 import { BlogCardAside } from '@/components/blog-landing/blog-card-aside';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+// import { getServerSession } from 'next-auth/next';
+// import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import Link from 'next/link';
+import { Card } from '@/components/ui/card';
+import { Tag, BlogResponse } from '@/types';
 
-async function getList() {
-  const session = await getServerSession(authOptions);
-  let remotePosts: { posts: any[] } | undefined = undefined;
-  if (session?.user?.accessToken) {
+async function getBlogs({ tag }: { tag?: string }) {
+  // const session = await getServerSession(authOptions);
+  let remote: BlogResponse[] = [];
+  // if (session?.user?.accessToken) {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts?tag=${tag}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.user.accessToken}`,
+          // 'Authorization': `Bearer ${session.user.accessToken}`,
         },
       });
       if (res.ok) {
-        remotePosts = (await res.json()) || [];
-        console.log('remote posts', remotePosts?.posts);
+        const { posts } = (await res.json()) || [];
+        remote = posts || [];
       } else {
         console.error('External API error', res.status);
       }
     } catch (err) {
       console.error('fetch external blogs error', err);
     }
-  }
-  return remotePosts?.posts
+  // }
+  return remote
 }
 
-export default async function Page({ searchParams }: { searchParams: { query: string } }) {
-  const { query } = await searchParams
+async function getTags() {
+  // const session = await getServerSession(authOptions);
+  let remote: Tag[] = [];
+  // if (session?.user?.accessToken) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/tags`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': `Bearer ${session.user.accessToken}`,
+        },
+      });
+      if (res.ok) {
+        const { tags } = (await res.json()) || [];
+        remote = tags.tags || [];
+      } else {
+        console.error('External API error', res.status);
+      }
+    } catch (err) {
+      console.error('fetch external tags error', err);
+    }
+  // }
 
-  const remotePosts = await getList();
+  return remote
+}
+
+export default async function Page({ searchParams }: { searchParams: { tag: string } }) {
+  const { tag } = await searchParams
+
+  const [remotePosts, remoteTags] = await Promise.all([
+    getBlogs({ tag }),
+    getTags(),
+  ])
   const postsToRender = remotePosts?.length ? remotePosts : blogPosts;
 
   return (
     <div className=" container mx-auto px-6 py-12 dark:bg-slate-900 dark:text-white">
       <div className="flex justify-center mb-6 h-90"><BlogCarousel /></div>
+      <Card className='my-3'>
+        <h1 className="text-xl font-bold text-slate-800 dark:text-white text-center">Popular tags</h1>
+        <div className='space-x-3 mx-3'>
+          { remoteTags && remoteTags.map(tag => (
+            <Link key={tag.id} href={`/blog?tag=${tag.title}`}>#{tag.title}</Link>
+          ))}
+        </div>
+      </Card>
       <div className="flex flex-col md:flex-row gap-6">
         {/* <h1 className="text-4xl font-extrabold text-center text-slate-800 dark:text-white mb-12">Latest Articles</h1> */}
         <div className="w-full md:w-4/5 lg:w-4/5">

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useSession } from 'next-auth/react';
+import useSWR from 'swr';
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 import { toast } from "sonner"
@@ -52,6 +53,31 @@ import { TagForm } from "./tag-form";
 import { useState } from "react"
 import type { Tag } from '@/types'
 
+async function getTags(session: any): Promise<Tag[]> {
+  let remote: Tag[] = [];
+  if (session?.user?.accessToken) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/tags`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.user.accessToken}`,
+        },
+      });
+      if (res.ok) {
+        const { tags } = (await res.json()) || [];
+        remote = tags.tags || [];
+      } else {
+        console.error('External API error', res.status);
+      }
+    } catch (err) {
+      console.error('fetch external tags error', err);
+    }
+  }
+
+  return remote
+}
+
 const formSchema = z.object({
   title: z.string().min(2, {
     message: "Title must be at least 2 characters.",
@@ -74,62 +100,11 @@ export const BlogForm = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false)
-  const [tags, setTags] = useState<Tag[]>([
-    {
-      "id": 1,
-      "title": "JS",
-      "description": "JavaScript",
-      "image": null,
-      "updatedAt": null,
-      "createdAt": "2025-10-11T18:33:55.458Z",
-      "deletedAt": null
-    },
-    {
-      "id": 2,
-      "title": "TS",
-      "description": "TypeScript",
-      "image": null,
-      "updatedAt": "2025-10-13T12:15:55.646Z",
-      "createdAt": "2025-10-11T18:36:24.378Z",
-      "deletedAt": null
-    },
-    {
-      "id": 3,
-      "title": "Vue",
-      "description": "vue.js",
-      "image": null,
-      "updatedAt": null,
-      "createdAt": "2025-10-11T18:44:48.923Z",
-      "deletedAt": null
-    },
-    {
-      "id": 4,
-      "title": "React",
-      "description": "react.js",
-      "image": null,
-      "updatedAt": null,
-      "createdAt": "2025-10-11T18:44:57.210Z",
-      "deletedAt": null
-    },
-    {
-      "id": 5,
-      "title": "Angular",
-      "description": "Angular",
-      "image": null,
-      "updatedAt": null,
-      "createdAt": "2025-10-11T18:45:11.216Z",
-      "deletedAt": null
-    },
-    {
-      "id": 7,
-      "title": "Node.js",
-      "description": "Node.js",
-      "image": null,
-      "updatedAt": null,
-      "createdAt": "2025-10-13T12:10:13.856Z",
-      "deletedAt": null
-    }
-  ])
+  const { data: tags, error, isLoading } = useSWR(
+    `/api/profiles/users/${session?.user?.id}`,
+    () => getTags(session)
+  )
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -188,7 +163,7 @@ export const BlogForm = () => {
             <DialogTitle>Create Tag</DialogTitle>
           </DialogHeader>
           <TagForm submitted={(val: Tag) => {
-            setTags((v) => [...v, val])
+            // setTags((v) => [...v, val])
            }} />
         </DialogContent>
       </Dialog>
@@ -265,7 +240,7 @@ export const BlogForm = () => {
                 </FormControl>
                 <MultiSelectContent>
                   <MultiSelectGroup>
-                    {tags.map((tag) => (
+                    {tags?.map((tag) => (
                       <MultiSelectItem key={tag.id} value={String(tag.id)}>
                         {tag.title}
                       </MultiSelectItem>

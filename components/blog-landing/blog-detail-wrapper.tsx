@@ -6,13 +6,14 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react';
 import { toast } from "sonner"
-import { SendHorizonal, Plus, Bookmark } from "lucide-react"
+import { SendHorizonal, Plus, Bookmark, LockKeyholeIcon, UserIcon } from "lucide-react"
 import { RelatedPostCard } from '@/components/blog-landing/related-post-card';
 import { BlogPost } from '@/components/blog-landing/data';
 import { TimeAgo } from '@/components/TimeAgo';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Rating, RatingButton } from '@/components/ui/shadcn-io/rating';
 import { IconButton } from "@/components/ui/shadcn-io/icon-button";
+import { Button } from "@/components/ui/button";
 import {
   InputGroup,
   InputGroupAddon,
@@ -20,6 +21,14 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "@/components/ui/input-group"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 interface BlogDetailWrapperProps {
   relatedPosts: BlogPost[];
@@ -55,13 +64,23 @@ export default function BlogDetailWrapper ({ relatedPosts, children }: BlogDetai
                 Back to All Articles
             </Link>
             <div>
-              <IconButton
-                icon={Bookmark}
-                active={states.bookmark}
-                color={[0,0,0]}
-                onClick={() => toggleState("bookmark")}
-                size="md"
-              />
+              { status !== 'authenticated' ?
+                  <SignUpDialog>
+                    <IconButton
+                      icon={Bookmark}
+                      active={states.bookmark}
+                      color={[0,0,0]}
+                      size="md"
+                    />
+                  </SignUpDialog> :
+                  <IconButton
+                    icon={Bookmark}
+                    active={states.bookmark}
+                    color={[0,0,0]}
+                    onClick={() => toggleState("bookmark")}
+                    size="md"
+                  />
+              }
             </div>
           </div>
 
@@ -128,11 +147,20 @@ const RatingSection = () => {
 
   return <>
     <p className='font-bold text-slate-800 dark:text-white text-lg mb-2'>Rate:</p>
-    <Rating value={rating} onValueChange={onRating}>
-      {Array.from({ length: 5 }).map((_, index) => (
-        <RatingButton key={index} className="text-yellow-500" />
-      ))}
-    </Rating>
+    { status !== 'authenticated' ?
+        <SignUpDialog>
+          <Rating value={rating}>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <RatingButton key={index} className="text-yellow-500" />
+            ))}
+          </Rating>
+        </SignUpDialog> :
+        <Rating value={rating} onValueChange={onRating}>
+          {Array.from({ length: 5 }).map((_, index) => (
+            <RatingButton key={index} className="text-yellow-500" />
+          ))}
+        </Rating>
+    }
   </>
 }
 
@@ -200,6 +228,7 @@ const CommentSection = () => {
             createdAt: result.comment?.createdAt,
             text,
           }
+          setComment('')
           setComments((v) => [row, ...v])
           console.log('comment', result);
         } else {
@@ -215,10 +244,19 @@ const CommentSection = () => {
   return <>
     <p className='font-bold text-slate-800 dark:text-white text-lg mb-2'>Comments (210)</p>
     <InputGroup>
-      <InputGroupTextarea
-        value={comment}
-        onChange={(e) => setComment(e.target.value)} placeholder="Add to the discussion..."
-      />
+      { status !== 'authenticated' ?
+          <SignUpDialog>
+            <InputGroupTextarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)} placeholder="Add to the discussion..."
+            />
+          </SignUpDialog> :
+          <InputGroupTextarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)} placeholder="Add to the discussion..."
+          />
+      }
+
       <InputGroupAddon align="block-end">
         <InputGroupButton
           variant="outline"
@@ -242,23 +280,52 @@ const CommentSection = () => {
       </InputGroupAddon>
     </InputGroup>
 
-    { comments.map((c, index) => (
-        <div key={index} className='flex items-start mt-6 gap-3'>
-          <Avatar className="rounded-md">
-            <AvatarImage
-              src="https://avatars.githubusercontent.com/u/20764729?s=48&v=4"
-            />
-            <AvatarFallback>KM</AvatarFallback>
-          </Avatar>
-          <div className='text-sm'>
-            <div className="dark:text-gray-300">
-              <span className='font-semibold'>@{c.username}</span>
-              <TimeAgo className='text-xs text-gray-500 dark:text-gray-500 ml-2' dateString={c.createdAt} />
-            </div>
-            <div>{c.text}</div>
-          </div>
-        </div>
-      ))
-    }
+    { comments.map((c, index) => UserComment(c, index)) }
   </>
+}
+
+function UserComment(comment: Comment, index: number) {
+  return (
+    <div key={index} className='flex items-start mt-6 gap-3'>
+      <Avatar className="rounded-md">
+        <AvatarImage
+          src="https://avatars.githubusercontent.com/u/20764729?s=48&v=4"
+        />
+        <AvatarFallback>KM</AvatarFallback>
+      </Avatar>
+      <div className='text-sm'>
+        <div className="dark:text-gray-300">
+          <span className='font-semibold'>@{comment.username}</span>
+          <TimeAgo className='text-xs text-gray-500 dark:text-gray-500 ml-2' dateString={comment.createdAt} />
+        </div>
+        <div>{comment.text}</div>
+      </div>
+    </div>
+  )
+}
+
+function SignUpDialog({ children }: { children: React.ReactNode}) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        {children}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Login to continue</DialogTitle>
+          <DialogDescription className='my-6'>
+            We're provide news about dev and technology.
+          </DialogDescription>
+        </DialogHeader>
+        <div className='flex flex-col gap-3'>
+          <Button variant="outline" asChild className='w-full'>
+            <Link href="/login"><LockKeyholeIcon /> Login</Link>
+          </Button>
+          <Button className="w-full" asChild>
+            <Link href="/signup"><UserIcon /> Sign Up</Link>
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
 }

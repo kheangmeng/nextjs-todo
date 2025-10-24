@@ -32,12 +32,18 @@ async function getDetail(id: number) {
 }
 
 export default async function BlogDetail (props: { params: Promise<{ id: string }> }) {
+    const session = await getServerSession(authOptions);
     const params = await props.params;
     const id = Number(params.id)
     const post = blogPosts.find(p => p.id === id);
     if (!post) {
       notFound();
     }
+
+    if (!session) {
+      return <p className="mt-22 text-center text-red-500 text-xl font-semibold">Access Denied. Please sign in.</p>;
+    }
+
     const remotePosts = await getDetail(id);
     const postToRender = remotePosts ? remotePosts : blogPosts;
 
