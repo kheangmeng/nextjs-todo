@@ -1,9 +1,11 @@
+import {useRef} from 'react';
 import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
 import {LexicalComposer} from '@lexical/react/LexicalComposer';
 import {ContentEditable} from '@lexical/react/LexicalContentEditable';
 import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
 import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
 import {RichTextPlugin} from '@lexical/react/LexicalRichTextPlugin';
+import {OnChangePlugin as LexicalOnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
 import {
   $isTextNode,
   DOMConversionMap,
@@ -15,13 +17,15 @@ import {
   LexicalNode,
   ParagraphNode,
   TextNode,
+  EditorState,
 } from 'lexical';
 import './style.css';
 
 import ExampleTheme from './theme';
 import ToolbarPlugin from './toolbar-plugin';
-import TreeViewPlugin from './tree-view-plugin';
+// import TreeViewPlugin from './tree-view-plugin';
 import {parseAllowedColor, parseAllowedFontSize} from './style-config';
+// import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
 const placeholder = 'Enter some rich text...';
 
@@ -123,7 +127,7 @@ const editorConfig = {
     export: exportMap,
     import: constructImportMap(),
   },
-  namespace: 'React.js Demo',
+  namespace: 'Blog Content',
   nodes: [ParagraphNode, TextNode],
   onError(error: Error) {
     throw error;
@@ -131,9 +135,32 @@ const editorConfig = {
   theme: ExampleTheme,
 };
 
-export default function App() {
+// function EditorOnChangeValue({ onChange }: { onChange: (value: any) => void }){
+//   const [editor] = useLexicalComposerContext();
+//   useEffect(() => {
+//     return editor.registerUpdateListener(({editorState}: any) => {
+//       onChange(editorState);
+//     });
+//   }, [editor, onChange]);
+//   return null;
+// }
+
+
+export default function Editor({initialEditorState, onChange }: { initialEditorState?: string, onChange: (value: string) => void }){
+  const editorStateRef = useRef<EditorState | undefined>(undefined);
+  let timeout: NodeJS.Timeout | undefined;
+
+  const getContent = (editorState: EditorState) => {
+    timeout && clearTimeout(timeout)
+    timeout = setTimeout(() => {
+      onChange(JSON.stringify(editorState))
+      editorStateRef.current = editorState;
+      // console.log(JSON.stringify(editorState))
+    }, 1000)
+  }
+
   return (
-    <LexicalComposer initialConfig={editorConfig}>
+    <LexicalComposer initialConfig={{...editorConfig, editorState: initialEditorState}}>
       <div className="editor-container">
         <ToolbarPlugin />
         <div className="editor-inner">
@@ -151,7 +178,17 @@ export default function App() {
           />
           <HistoryPlugin />
           <AutoFocusPlugin />
-          <TreeViewPlugin />
+          {/* <TreeViewPlugin /> */}
+          <LexicalOnChangePlugin
+            onChange={(editorState: EditorState) => getContent(editorState)}
+          />
+          {/* <button onClick={() => {
+            if (editorStateRef.current) {
+              saveContent(JSON.stringify(editorStateRef.current))
+            }
+          }}>
+              Save
+          </button> */}
         </div>
       </div>
     </LexicalComposer>

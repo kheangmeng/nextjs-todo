@@ -46,9 +46,10 @@ import {
   MultiSelectTrigger,
   MultiSelectValue,
 } from "@/components/ui/multi-select"
-import { Textarea } from "@/components/ui/textarea";
+// import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import LaxicalEditor from "@/components/lexical-editor";
 import { TagForm } from "./tag-form";
 import { useState } from "react"
 import type { Tag } from '@/types'
@@ -95,6 +96,10 @@ const formSchema = z.object({
   }),
 })
 
+const loadContent = () => {
+  const value = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"hello this init content.","type":"text","version":1}],"direction":null,"format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":null,"format":"","indent":0,"type":"root","version":1}}`;
+  return value;
+}
 // const tags = z.coerce.number<number>()
 export const BlogForm = () => {
   const router = useRouter();
@@ -212,7 +217,8 @@ export const BlogForm = () => {
             <FormItem>
               <FormLabel>Content</FormLabel>
               <FormControl>
-                <Textarea placeholder="content" {...field} />
+                {/* <Textarea placeholder="content" {...field} /> */}
+                <LaxicalEditor initialEditorState={loadContent()} onChange={(val) => field.onChange(val)}/>
               </FormControl>
               <FormDescription>
                 This is your public post content.
