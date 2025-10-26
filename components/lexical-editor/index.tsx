@@ -24,8 +24,8 @@ import './style.css';
 import ExampleTheme from './theme';
 import ToolbarPlugin from './toolbar-plugin';
 // import TreeViewPlugin from './tree-view-plugin';
-import {parseAllowedColor, parseAllowedFontSize} from './style-config';
 // import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import {parseAllowedColor, parseAllowedFontSize} from './style-config';
 
 const placeholder = 'Enter some rich text...';
 
@@ -145,6 +145,18 @@ const editorConfig = {
 //   return null;
 // }
 
+// function SaveButton({onSave}: {onSave: (html: string) => void}) {
+//   const [editor] = useLexicalComposerContext();
+
+//   const handleSave = () => {
+//     editor.update(() => {
+//       const htmlString = $generateHtmlFromNodes(editor, null);
+//       onSave(htmlString);
+//     });
+//   };
+
+//   return <button type='button' onClick={handleSave}>Save as HTML</button>;
+// }
 
 export default function Editor({initialEditorState, onChange }: { initialEditorState?: string, onChange: (value: string) => void }){
   const editorStateRef = useRef<EditorState | undefined>(undefined);
@@ -182,6 +194,7 @@ export default function Editor({initialEditorState, onChange }: { initialEditorS
           <LexicalOnChangePlugin
             onChange={(editorState: EditorState) => getContent(editorState)}
           />
+          {/* <SaveButton onSave={(html) => onChange(html)} /> */}
           {/* <button onClick={() => {
             if (editorStateRef.current) {
               saveContent(JSON.stringify(editorStateRef.current))
