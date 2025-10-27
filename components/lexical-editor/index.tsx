@@ -173,7 +173,7 @@ export default function Editor({initialEditorState, onChange }: { initialEditorS
 
   return (
     <LexicalComposer initialConfig={{...editorConfig, editorState: initialEditorState}}>
-      <div className="editor-container">
+      <div className="editor-container w-full">
         <ToolbarPlugin />
         <div className="editor-inner">
           <RichTextPlugin

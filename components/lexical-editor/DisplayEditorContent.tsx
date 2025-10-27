@@ -1,7 +1,9 @@
-import React from 'react';
-import { useLexicalToHtml } from '@/components/lexical-editor/useLexicalToHtml';
+'use client'
 
-export function DisplayContent ({ jsonContent, ...props }: React.ComponentProps<"div"> & { jsonContent: string }) {
+import React from 'react';
+import { useLexicalToHtml } from '@/components/lexical-editor/useLexicalFormat';
+
+export function DisplayEditorContent ({ jsonContent, ...props }: React.ComponentProps<"div"> & { jsonContent: string }) {
     const html = useLexicalToHtml(jsonContent);
 
     return (

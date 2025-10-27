@@ -31,6 +31,7 @@ import {
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input";
+import JumpingDotsLoader from '@/components/jumping-dot-loader';
 import type { BlogResponse } from "@/types"
 
 async function getList(accessToken: string) {
@@ -127,7 +128,7 @@ export default function Page({ blogs = [] }: { blogs: BlogResponse[] }) {
     )
   }
   if (error) return <div>failed to load</div>
-  if (isLoading) return <div>loading...</div>
+  if (isLoading) return <JumpingDotsLoader />
 
   return (<Card className="p-6 mt-12 mx-6">
     <div className="w-[450] md:w-[1000]">
@@ -175,7 +176,7 @@ export default function Page({ blogs = [] }: { blogs: BlogResponse[] }) {
                   {blog.isPublished ? 'Published' : 'Draft'}
                 </TableCell>
                 <TableCell className="font-medium">
-                  {blog.userId}
+                  {blog.user?.username}
                 </TableCell>
                 <TableCell className="font-medium">
                   {blog.description}

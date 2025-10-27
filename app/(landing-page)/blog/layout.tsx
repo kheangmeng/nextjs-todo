@@ -10,7 +10,7 @@ const Header = () => {
         <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6">
           <Link
             href="/blog"
-            className="text-2xl font-bold text-slate-800 dark:text-white cursor-pointer hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
+            className="text-2xl font-bold text-blue-500 dark:text-white cursor-pointer hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
           >
             DevInsights Blog
           </Link>

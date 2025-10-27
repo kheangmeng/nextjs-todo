@@ -12,7 +12,7 @@ export default async function Page() {
 
   return (
     <div className="container mx-auto px-6 py-12 flex flex-col items-center space-y-3">
-      <Card className="w-1/2 pt-6 px-6">
+      <Card className="w-3/4 pt-6 px-6">
         <h2 className="text-center text-black dark:text-white text-2xl font-semibold">Create Blog</h2>
         <BlogForm />
       </Card>

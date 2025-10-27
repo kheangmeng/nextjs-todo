@@ -29,12 +29,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { BlogResponse } from '@/types';
 
 interface BlogDetailWrapperProps {
+  post: BlogResponse;
   relatedPosts: BlogPost[];
   children: React.ReactNode;
 }
-export default function BlogDetailWrapper ({ relatedPosts, children }: BlogDetailWrapperProps) {
+export default function BlogDetailWrapper ({ post, relatedPosts, children }: BlogDetailWrapperProps) {
   const { id: postId } = useParams()
   const { data: session, status } = useSession();
   const [rating, setRating] = useState(0);
@@ -69,14 +71,14 @@ export default function BlogDetailWrapper ({ relatedPosts, children }: BlogDetai
                     <IconButton
                       icon={Bookmark}
                       active={states.bookmark}
-                      color={[0,0,0]}
+                      color={[42, 127, 255]}
                       size="md"
                     />
                   </SignUpDialog> :
                   <IconButton
                     icon={Bookmark}
                     active={states.bookmark}
-                    color={[0,0,0]}
+                    color={[42, 127, 255]}
                     onClick={() => toggleState("bookmark")}
                     size="md"
                   />
@@ -87,7 +89,7 @@ export default function BlogDetailWrapper ({ relatedPosts, children }: BlogDetai
           {children}
 
           <div className='mt-6'>
-            <RatingSection />
+            <RatingSection avgRate={post?.avgRate} />
           </div>
 
           <div className='mt-6'>
@@ -110,7 +112,7 @@ export default function BlogDetailWrapper ({ relatedPosts, children }: BlogDetai
   );
 };
 
-const RatingSection = () => {
+const RatingSection = ({ avgRate }: {avgRate: number}) => {
   const { id: postId } = useParams()
   const { data: session, status } = useSession();
   const [rating, setRating] = useState(0);
@@ -150,7 +152,7 @@ const RatingSection = () => {
     { status !== 'authenticated' ?
         <SignUpDialog>
           <Rating value={rating}>
-            {Array.from({ length: 5 }).map((_, index) => (
+            {Array.from({ length: avgRate }).map((_, index) => (
               <RatingButton key={index} className="text-yellow-500" />
             ))}
           </Rating>

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useSession } from 'next-auth/react';
+import { useParams } from 'next/navigation'
 import useSWR from 'swr';
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
@@ -46,13 +47,14 @@ import {
   MultiSelectTrigger,
   MultiSelectValue,
 } from "@/components/ui/multi-select"
-// import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import LaxicalEditor from "@/components/lexical-editor";
+import ImagePlaceHolder from "@/components/image-placeholder";
 import { TagForm } from "./tag-form";
-import { useState } from "react"
-import type { Tag } from '@/types'
+import { useState, useRef } from "react"
+import type { Tag, BlogResponse } from '@/types'
 
 async function getTags(session: any): Promise<Tag[]> {
   let remote: Tag[] = [];
@@ -96,14 +98,12 @@ const formSchema = z.object({
   }),
 })
 
-const loadContent = () => {
-  const value = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"hello this init content.","type":"text","version":1}],"direction":null,"format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":null,"format":"","indent":0,"type":"root","version":1}}`;
-  return value;
-}
 // const tags = z.coerce.number<number>()
-export const BlogForm = () => {
+export const BlogForm = ({data}: {data?: BlogResponse}) => {
+  const { id: postId } = useParams()
   const router = useRouter();
   const { data: session, status } = useSession();
+  const imgRef = useRef<string>('');
   const [loading, setLoading] = useState(false)
   const { data: tags, error, isLoading } = useSWR(
     `/api/profiles/users/${session?.user?.id}`,
@@ -113,18 +113,30 @@ export const BlogForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      content: "",
-      image: "",
-      isPublished: false,
-      tagIds: [],
+      title: data?.title,
+      description: data?.description,
+      content: data?.content,
+      image: data?.image,
+      isPublished: data?.isPublished,
+      tagIds: data?.tags.map((t) => t.id) || [],
     },
   })
 
+  const loadContent = () => {
+    const value = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"hello this init content.","type":"text","version":1}],"direction":null,"format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":null,"format":"","indent":0,"type":"root","version":1}}`;
+    return data?.content || value;
+  }
+  const handleGetImage = (title: string, url: string) => {
+    imgRef.current = url;
+    form.setValue('title', title);
+    form.setValue('image', url);
+  }
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
-    createBlog(values)
+    if (postId) {
+      updateBlog({...values, image: imgRef.current}, Number(postId))
+    } else {
+      createBlog({...values, image: imgRef.current})
+    }
   }
 
   async function createBlog(data: z.infer<typeof formSchema>) {
@@ -149,6 +161,32 @@ export const BlogForm = () => {
       } catch (err) {
         toast.error("Failed to create blog!");
         console.error('create blogs error', err);
+      }
+    }
+  }
+
+  async function updateBlog(data: z.infer<typeof formSchema>, id: number) {
+    if (session?.user?.accessToken) {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.user.accessToken}`,
+          },
+          body: JSON.stringify(data)
+        });
+        if (res.ok) {
+          toast.success("Blog updated successfully!");
+          const result = (await res.json()) || undefined;
+          console.log('updated posts', result);
+          router.push('/blog');
+        } else {
+          console.error('External API error', res.status);
+        }
+      } catch (err) {
+        toast.error("Failed to update blog!");
+        console.error('update blogs error', err);
       }
     }
   }
@@ -178,7 +216,10 @@ export const BlogForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
+        <ImagePlaceHolder url={data?.image} onChange={handleGetImage} />
+        <FieldSeparator className="my-5" />
+
+        {/* <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
@@ -193,7 +234,8 @@ export const BlogForm = () => {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
+
         <FormField
           control={form.control}
           name="description"
@@ -201,7 +243,7 @@ export const BlogForm = () => {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Input placeholder="description" {...field} />
+                <Textarea placeholder="description" {...field} />
               </FormControl>
               <FormDescription>
                 This is your public post description.
