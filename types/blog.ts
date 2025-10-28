@@ -1,4 +1,5 @@
 import { Tag } from "./tag";
+import { UserProfile } from "./user";
 
 export interface BlogResponse {
   id: number;
@@ -21,11 +22,4 @@ export interface BlogResponse {
   // category: string;
   // tags: string[];
   // excerpt: string;
-}
-
-export interface UserProfile {
-  id: number;
-  username: string;
-  email: string;
-  role: string;
 }

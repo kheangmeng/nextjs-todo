@@ -74,7 +74,7 @@ export default async function Page({ searchParams }: { searchParams: { tag: stri
       <Card className='my-3'>
         <h1 className="text-xl font-bold text-slate-800 dark:text-white text-center">Popular tags</h1>
         <div className='space-x-3 mx-3'>
-          { remoteTags && remoteTags.map(tag => (
+          { remoteTags.map(tag => (
             <Link key={tag.id} href={`/blog?tag=${tag.title}`}>#{tag.title}</Link>
           ))}
         </div>
@@ -83,7 +83,7 @@ export default async function Page({ searchParams }: { searchParams: { tag: stri
         {/* <h1 className="text-4xl font-extrabold text-center text-slate-800 dark:text-white mb-12">Latest Articles</h1> */}
         <div className="w-full md:w-4/5 lg:w-4/5">
           <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {blogPosts.map(post => (
+            {remotePosts.map(post => (
               <BlogPostCard key={post.id} post={post} />
             ))}
           </div>

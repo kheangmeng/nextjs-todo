@@ -1,19 +1,18 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useSWR from 'swr'
 import Link from 'next/link';
 import { useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react';
 import { toast } from "sonner"
-import { SendHorizonal, Plus, Bookmark, LockKeyholeIcon, UserIcon } from "lucide-react"
+import { SendHorizonal, Plus, BookmarkIcon } from "lucide-react"
 import { RelatedPostCard } from '@/components/blog-landing/related-post-card';
 import { BlogPost } from '@/components/blog-landing/data';
 import { TimeAgo } from '@/components/TimeAgo';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Rating, RatingButton } from '@/components/ui/shadcn-io/rating';
 import { IconButton } from "@/components/ui/shadcn-io/icon-button";
-import { Button } from "@/components/ui/button";
 import {
   InputGroup,
   InputGroupAddon,
@@ -21,15 +20,8 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "@/components/ui/input-group"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { BlogResponse } from '@/types';
+import SignUpDialog from './signup-dialog';
+import type { BlogResponse, Comment, CommentResponse, Rate, Bookmark } from '@/types';
 
 interface BlogDetailWrapperProps {
   post: BlogResponse;
@@ -39,16 +31,55 @@ interface BlogDetailWrapperProps {
 export default function BlogDetailWrapper ({ post, relatedPosts, children }: BlogDetailWrapperProps) {
   const { id: postId } = useParams()
   const { data: session, status } = useSession();
-  const [rating, setRating] = useState(0);
-  const  [states, setStates] = useState({
-    bookmark: false,
-  })
+  const [bookmark, setBookmark] = useState(false);
+  // const  [states, setStates] = useState({
+  //   bookmark: false,
+  // })
+  const { data: bookmarkByUser, error, isLoading } = useSWR(
+    `/api/bookmark/post?postId=${postId}`,
+    () => getBookmarkByUser(session?.user?.accessToken || '', `${postId}`)
+  )
 
-  const toggleState = (state: keyof typeof states) => {
-    setStates((prevStates) => ({
-      ...prevStates,
-      [state]: !prevStates[state],
-    }));
+  useEffect(() => {
+    if(bookmarkByUser) {
+      setBookmark(bookmarkByUser.isBookmarked)
+    }
+  }, [bookmarkByUser])
+
+  // const toggleState = (state: keyof typeof states) => {
+  //   setStates((prevStates) => ({
+  //     ...prevStates,
+  //     [state]: !prevStates[state],
+  //   }));
+  // }
+  const onBookmark = async (isBookmarked: boolean) => {
+    if (session?.user?.accessToken) {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/bookmarks`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.user.accessToken}`,
+          },
+          body: JSON.stringify({
+            isBookmarked,
+            postId: Number(postId),
+          })
+        });
+        if (res.ok) {
+          // toggleState("bookmark")
+          setBookmark(isBookmarked)
+          toast.success("Blog bookmark!");
+          const result = (await res.json()) || undefined;
+          console.log('bookmark posts', result);
+        } else {
+          console.error('External API error', res.status);
+        }
+      } catch (err) {
+        toast.error("Failed to bookmark blog!");
+        console.error('bookmark blogs error', err);
+      }
+    }
   }
 
   return (
@@ -69,17 +100,17 @@ export default function BlogDetailWrapper ({ post, relatedPosts, children }: Blo
               { status !== 'authenticated' ?
                   <SignUpDialog>
                     <IconButton
-                      icon={Bookmark}
-                      active={states.bookmark}
+                      icon={BookmarkIcon}
+                      active={bookmark}
                       color={[42, 127, 255]}
                       size="md"
                     />
                   </SignUpDialog> :
                   <IconButton
-                    icon={Bookmark}
-                    active={states.bookmark}
+                    icon={BookmarkIcon}
+                    active={bookmark}
                     color={[42, 127, 255]}
-                    onClick={() => toggleState("bookmark")}
+                    onClick={() => onBookmark(!bookmark)}
                     size="md"
                   />
               }
@@ -112,10 +143,69 @@ export default function BlogDetailWrapper ({ post, relatedPosts, children }: Blo
   );
 };
 
-const RatingSection = ({ avgRate }: {avgRate: number}) => {
+async function getBookmarkByUser(accessToken: string, postId: string): Promise<Bookmark> {
+  let remoteBookmark: {bookmark: any} | undefined = undefined;
+  if (postId && accessToken) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/bookmarks/post/${postId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      if (res.ok) {
+        const { bookmark } = (await res.json()) || undefined;
+        remoteBookmark = bookmark
+        console.log('user bookmark', bookmark?.bookmark);
+      } else {
+        console.error('External API error', res.status);
+      }
+    } catch (err) {
+      console.error('fetch external bookmark error', err);
+    }
+  }
+  return remoteBookmark?.bookmark;
+}
+
+async function getRateByUser(accessToken: string, postId: string): Promise<Rate> {
+  let remoteRate: {rate: any} | undefined = undefined;
+  if (postId && accessToken) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/rates/post/${postId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      if (res.ok) {
+        const { rate } = (await res.json()) || undefined;
+        remoteRate = rate
+        console.log('user rate', rate?.rate);
+      } else {
+        console.error('External API error', res.status);
+      }
+    } catch (err) {
+      console.error('fetch external rate error', err);
+    }
+  }
+  return remoteRate?.rate;
+}
+function RatingSection ({ avgRate }: {avgRate: number}) {
   const { id: postId } = useParams()
   const { data: session, status } = useSession();
   const [rating, setRating] = useState(0);
+  const { data: rateByUser, error, isLoading } = useSWR(
+    `/api/rate/post?postId=${postId}`,
+    () => getRateByUser(session?.user?.accessToken || '', `${postId}`)
+  )
+
+  useEffect(() => {
+    if(rateByUser) {
+      setRating(rateByUser?.rate)
+    }
+  }, [rateByUser])
 
   const onRating = async (rate: number) => {
     if (session?.user?.accessToken) {
@@ -166,11 +256,10 @@ const RatingSection = ({ avgRate }: {avgRate: number}) => {
   </>
 }
 
-
-async function getCommentList(accessToken: string, postId: string) {
+async function getCommentList(accessToken: string, postId: string): Promise<CommentResponse[]> {
   let remotePosts: { comments: any[] } | undefined = undefined;
   if (accessToken) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/comments?postId=${postId}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/comments?postId=${postId}&order=-createdAt`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -179,36 +268,42 @@ async function getCommentList(accessToken: string, postId: string) {
     });
     if (!res.ok) {
       const error: any = new Error('An error occurred while fetching the data.')
-      // Attach extra info to the error object.
       error.info = await res.json()
       error.status = res.status
       throw error
     }
 
-    remotePosts = (await res.json()) || [];
-    console.log('remote comments', remotePosts?.comments);
+    const { comments } = (await res.json()) || [];
+    remotePosts = comments
   }
-  return remotePosts?.comments
+  return remotePosts?.comments || []
 }
 
-interface Comment {
-  username: string;
-  createdAt: string;
-  text: string;
-}
-const CommentSection = () => {
+function CommentSection() {
   const { id: postId } = useParams()
   const { data: session, status } = useSession();
   const [comment, setComment] = useState('');
-  const [comments, setComments] = useState<Comment[]>([
-    {username: 'Jonh Doe', createdAt: new Date().toISOString(), text: 'Informative article thanks for sharing.'}
-  ])
+  const [comments, setComments] = useState<Comment[]>([])
   const { data: commentData, error, isLoading } = useSWR(
-    `/api/comments?postId=${postId}`,
+    `/api/comments?postId=${postId}&order=-createdAt`,
     () => getCommentList(session?.user?.accessToken || '', `${postId}`)
   )
 
-   const onComment = async (text: string) => {
+  useEffect(() => {
+    if(commentData) {
+      setComments(() => [...mapComments(commentData || [])])
+    }
+  },  [commentData])
+
+  const mapComments = (data: CommentResponse[]): Comment[] => {
+    return data.map((c) => ({
+      username: c.user.username,
+      createdAt: c.createdAt,
+      text: c.text,
+    }))
+  }
+
+  const onComment = async (text: string) => {
     if (session?.user?.accessToken) {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/comments`, {
@@ -244,7 +339,7 @@ const CommentSection = () => {
   }
 
   return <>
-    <p className='font-bold text-slate-800 dark:text-white text-lg mb-2'>Comments (210)</p>
+    <p className='font-bold text-slate-800 dark:text-white text-lg mb-2'>Comments ({commentData?.length})</p>
     <InputGroup>
       { status !== 'authenticated' ?
           <SignUpDialog>
@@ -262,7 +357,7 @@ const CommentSection = () => {
       <InputGroupAddon align="block-end">
         <InputGroupButton
           variant="outline"
-          className="rounded-full"
+          className="hidden rounded-full"
           size="icon-xs"
         >
           <Plus />
@@ -303,31 +398,5 @@ function UserComment(comment: Comment, index: number) {
         <div>{comment.text}</div>
       </div>
     </div>
-  )
-}
-
-function SignUpDialog({ children }: { children: React.ReactNode}) {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Login to continue</DialogTitle>
-          <DialogDescription className='my-6'>
-            We're provide news about dev and technology.
-          </DialogDescription>
-        </DialogHeader>
-        <div className='flex flex-col gap-3'>
-          <Button variant="outline" asChild className='w-full'>
-            <Link href="/login"><LockKeyholeIcon /> Login</Link>
-          </Button>
-          <Button className="w-full" asChild>
-            <Link href="/signup"><UserIcon /> Sign Up</Link>
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
   )
 }

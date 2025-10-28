@@ -32,9 +32,10 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input";
 import JumpingDotsLoader from '@/components/jumping-dot-loader';
+import { formatDate } from '@/lib/utils';
 import type { BlogResponse } from "@/types"
 
-async function getList(accessToken: string) {
+async function getList(accessToken: string): Promise<BlogResponse[]> {
   let remotePosts: { posts: any[] } | undefined = undefined;
   if (accessToken) {
     const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts`, {
@@ -55,12 +56,11 @@ async function getList(accessToken: string) {
     remotePosts = (await res.json()) || [];
     console.log('remote posts', remotePosts?.posts);
   }
-  return remotePosts?.posts
+  return remotePosts?.posts || []
 }
-export default function Page({ blogs = [] }: { blogs: BlogResponse[] }) {
+export default function Page() {
   const { data: session, status } = useSession();
-  const { data: blogData, error, isLoading } = useSWR('/api/user', () => getList(session?.user?.accessToken || ''))
-
+  const { data: blogData, error, isLoading } = useSWR(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts`, () => getList(session?.user?.accessToken || ''))
   const searchParams = useSearchParams()
   const query = searchParams.get('query');
 
@@ -80,7 +80,7 @@ export default function Page({ blogs = [] }: { blogs: BlogResponse[] }) {
   }
 
   const noFilterFound = () => {
-    if (blogs.length === 0 && query) {
+    if (blogData?.length === 0 && query) {
       return <TableCaption className="text-center text-gray-500">
         No result. Create a new one instead!
       </TableCaption>
@@ -116,7 +116,7 @@ export default function Page({ blogs = [] }: { blogs: BlogResponse[] }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete this todo from servers.
+              This action cannot be undone. This will permanently delete this post from servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -131,8 +131,7 @@ export default function Page({ blogs = [] }: { blogs: BlogResponse[] }) {
   if (isLoading) return <JumpingDotsLoader />
 
   return (<Card className="p-6 mt-12 mx-6">
-    <div className="w-[450] md:w-[1000]">
-      {/* {blogData?.postsResult?.length} */}
+    <div className="w-full">
       <div className="flex justify-between">
         <h1 className="mb-3 text-2xl font-semibold">My Blogs</h1>
         <Button asChild><Link href="/blog/create">Create Blog</Link></Button>
@@ -164,7 +163,7 @@ export default function Page({ blogs = [] }: { blogs: BlogResponse[] }) {
               <TableRow>
                 <TableCell colSpan={5} className="text-center"><Loader2Icon className="mx-auto h-6 w-6 animate-spin" /></TableCell>
               </TableRow>
-            : blogs.map((blog: BlogResponse) => (
+            : blogData?.map((blog: BlogResponse) => (
               <TableRow
                 key={blog.id}
                 className="group strikeout"
@@ -173,22 +172,27 @@ export default function Page({ blogs = [] }: { blogs: BlogResponse[] }) {
                   {blog.id}
                 </TableCell>
                 <TableCell className="font-medium">
+                  {blog.title}
+                </TableCell>
+                <TableCell className="font-medium">
                   {blog.isPublished ? 'Published' : 'Draft'}
                 </TableCell>
                 <TableCell className="font-medium">
                   {blog.user?.username}
                 </TableCell>
                 <TableCell className="font-medium">
-                  {blog.description}
+                  <div className="truncate w-[350px]">{blog.description}</div>
                 </TableCell>
                 <TableCell className="text-right font-medium">
-                  {blog.createdAt}
+                  {formatDate(blog.createdAt)}
                 </TableCell>
                 <TableCell className="text-right font-medium">
-                  {blog.updatedAt}
+                  {formatDate(blog.updatedAt)}
                 </TableCell>
                 <TableCell className="flex gap-2 invisible group-hover:visible">
-                  <Button size="sm" variant="default" onClick={() => console.log('edit')}>Edit</Button>
+                  <Button size="sm" variant="default" onClick={() => console.log('edit')} asChild>
+                    <Link href={`/blog/${blog.id}/edit`}>Edit</Link>
+                  </Button>
                   <DeleteBlogDialog id={blog.id} />
                 </TableCell>
               </TableRow>

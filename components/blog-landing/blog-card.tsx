@@ -31,7 +31,7 @@ export default function BlogPostCard({ post, onSelectPost }: BlogPostCardProps) 
                 <RatingButton key={index} size={12} className="text-yellow-500" />
               ))}
             </Rating>
-            <span>( {post.rateCount} )</span>
+            <span>({post.rateCount})</span>
           </div>
           <p className="text-slate-600 dark:text-white mb-4 flex-grow">{post.description}</p>
           {
