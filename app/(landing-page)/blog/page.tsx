@@ -72,10 +72,10 @@ export default async function Page({ searchParams }: { searchParams: { tag: stri
     <div className=" container mx-auto px-6 py-12 dark:bg-slate-900 dark:text-white">
       <div className="flex justify-center mb-6 h-90"><BlogCarousel /></div>
       <Card className='my-3'>
-        <h1 className="text-xl font-bold text-slate-800 dark:text-white text-center">Popular tags</h1>
-        <div className='space-x-3 mx-3'>
+        {/* <h1 className="text-xl font-bold text-slate-800 dark:text-white text-center">Popular tags</h1> */}
+        <div className='space-x-6 mx-6'>
           { remoteTags.map(tag => (
-            <Link key={tag.id} href={`/blog?tag=${tag.title}`}>#{tag.title}</Link>
+            <Link className='hover:text-blue-300' key={tag.id} href={`/blog?tag=${tag.title}`}>#{tag.title}</Link>
           ))}
         </div>
       </Card>

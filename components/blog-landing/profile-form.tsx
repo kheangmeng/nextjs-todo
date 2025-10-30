@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, type ChangeEvent } from 'react';
-import { useSession } from 'next-auth/react';
+// import { useSession } from 'next-auth/react';
 import useSWR from 'swr';
 import { createClient } from '@/lib/supabase/client'
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { Spinner } from "@/components/ui/spinner"
+import { type Session } from "next-auth";
 
 const supabase = createClient()
 const formSchema = z.object({
@@ -35,7 +36,7 @@ const formSchema = z.object({
   image: z.string().nullish(),
 })
 
-const getProfile = async (session: any) => {
+const getProfile = async (session: Session) => {
   let remoteProfile: {profile: any} | undefined = undefined;
   if (session?.user?.accessToken) {
     const { id, accessToken } = session.user;
@@ -48,7 +49,8 @@ const getProfile = async (session: any) => {
         },
       });
       if (res.ok) {
-        remoteProfile = (await res.json()) || undefined;
+        const { profile } = (await res.json()) || undefined;
+        remoteProfile = profile
         console.log('remote profile', remoteProfile?.profile);
       } else {
         console.error('External API error', res.status);
@@ -60,9 +62,9 @@ const getProfile = async (session: any) => {
   return remoteProfile?.profile;
 }
 
-export function ProfileForm() {
+export function ProfileForm({session}: {session: Session}) {
   const [loading, setLoading] = useState(false)
-  const { data: session, status } = useSession();
+  // const { data: session, status } = useSession();
   const [image, setImage] = useState('');
   const { data: profileData, error, isLoading } = useSWR(
     `/api/profiles/users/${session?.user?.id}`,
@@ -82,9 +84,9 @@ export function ProfileForm() {
   useEffect(() => {
     if (profileData) {
       form.reset({
-        firstName: profileData.firstName ?? '',
-        lastName: profileData.lastName ?? '',
-        bio: profileData.bio ?? '',
+        firstName: profileData?.firstName ?? '',
+        lastName: profileData?.lastName ?? '',
+        bio: profileData?.bio ?? '',
       })
     }
   }, [profileData])

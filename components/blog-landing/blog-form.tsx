@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useSession } from 'next-auth/react';
@@ -9,6 +10,7 @@ import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 import { toast } from "sonner"
 import { Loader2Icon, PlusCircle } from "lucide-react";
+import { isValidJSON } from '@/lib/utils'
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -53,7 +55,6 @@ import { Input } from "@/components/ui/input"
 import LaxicalEditor from "@/components/lexical-editor";
 import ImagePlaceHolder from "@/components/image-placeholder";
 import { TagForm } from "./tag-form";
-import { useState, useRef } from "react"
 import type { Tag, BlogResponse } from '@/types'
 
 async function getTags(session: any): Promise<Tag[]> {
@@ -123,8 +124,10 @@ export const BlogForm = ({data}: {data?: BlogResponse}) => {
   })
 
   const loadContent = () => {
-    const value = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"hello this init content.","type":"text","version":1}],"direction":null,"format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":null,"format":"","indent":0,"type":"root","version":1}}`;
-    return data?.content || value;
+    if(isValidJSON(data?.content || '')) {
+      return data?.content
+    }
+    return undefined;
   }
   const handleGetImage = (title: string, url: string) => {
     imgRef.current = url;
@@ -142,6 +145,7 @@ export const BlogForm = ({data}: {data?: BlogResponse}) => {
   async function createBlog(data: z.infer<typeof formSchema>) {
     if (session?.user?.accessToken) {
       try {
+        setLoading(true)
         const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts`, {
           method: 'POST',
           headers: {
@@ -161,6 +165,8 @@ export const BlogForm = ({data}: {data?: BlogResponse}) => {
       } catch (err) {
         toast.error("Failed to create blog!");
         console.error('create blogs error', err);
+      } finally {
+        setLoading(false)
       }
     }
   }
@@ -168,6 +174,7 @@ export const BlogForm = ({data}: {data?: BlogResponse}) => {
   async function updateBlog(data: z.infer<typeof formSchema>, id: number) {
     if (session?.user?.accessToken) {
       try {
+        setLoading(true)
         const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts/${id}`, {
           method: 'PUT',
           headers: {
@@ -187,6 +194,8 @@ export const BlogForm = ({data}: {data?: BlogResponse}) => {
       } catch (err) {
         toast.error("Failed to update blog!");
         console.error('update blogs error', err);
+      } finally {
+        setLoading(false)
       }
     }
   }
@@ -376,8 +385,15 @@ export const BlogForm = ({data}: {data?: BlogResponse}) => {
             </FieldSet>
           )}
         />
-        <Button type="button" variant={'outline'} className="mr-3">Cancel</Button>
-        <Button type="submit">Submit</Button>
+        <div className="flex justify-end">
+          <Button type="button" variant={'outline'} className="mr-3">Cancel</Button>
+          <Button type="submit" disabled={loading}>
+            { loading ?
+                <Loader2Icon className="h-4 w-4 animate-spin" /> :
+                postId ? "Update" : "Submit"
+            }
+          </Button>
+        </div>
       </form>
     </Form>
   )

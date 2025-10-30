@@ -10,6 +10,7 @@ export interface CommentResponse {
 }
 
 export interface Comment {
+  id: number;
   username: string;
   createdAt: string;
   text: string;

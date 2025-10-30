@@ -19,7 +19,7 @@ export function BlogProfileMenu() {
 
   return (
     <>
-      { session?.user?.accessToken ?
+      { status === 'authenticated' ?
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2 transition-colors">
             <Avatar className="rounded-lg">
@@ -36,11 +36,13 @@ export function BlogProfileMenu() {
           <DropdownMenuContent>
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <Link href="/blog/profile">Profile</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem><Link href="/blog/list">My Blogs</Link></DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/blog/list">My Blogs</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <Link href="/blog/create">Create Blog</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />

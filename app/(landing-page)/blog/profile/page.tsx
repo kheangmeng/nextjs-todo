@@ -16,7 +16,7 @@ export default async function Page({ searchParams }: { searchParams: { query: st
       <div className="w-full">
         <Card className="px-6">
           <h1 className="text-2xl font-semibold">Profile</h1>
-          <ProfileForm />
+          { session && <ProfileForm session={session} /> }
         </Card>
       </div>
       <div className="w-full">
