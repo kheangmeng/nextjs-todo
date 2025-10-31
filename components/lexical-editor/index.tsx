@@ -19,6 +19,19 @@ import {
   TextNode,
   EditorState,
 } from 'lexical';
+import { HeadingNode, QuoteNode } from "@lexical/rich-text";
+import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
+import { ListItemNode, ListNode } from "@lexical/list";
+import { CodeHighlightNode, CodeNode } from "@lexical/code";
+import { AutoLinkNode, LinkNode } from "@lexical/link";
+import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
+import { TRANSFORMERS } from "@lexical/markdown";
+
+import ListMaxIndentLevelPlugin from "./list-max-indent-level-plugin";
+import CodeHighlightPlugin from "./code-highlight-plugin";
+import AutoLinkPlugin from "./auto-link-plugin";
 import './style.css';
 
 import ExampleTheme from './theme';
@@ -128,7 +141,21 @@ const editorConfig = {
     import: constructImportMap(),
   },
   namespace: 'Blog Content',
-  nodes: [ParagraphNode, TextNode],
+  nodes: [
+    ParagraphNode,
+    TextNode,
+    HeadingNode,
+    ListNode,
+    ListItemNode,
+    QuoteNode,
+    CodeNode,
+    CodeHighlightNode,
+    TableNode,
+    TableCellNode,
+    TableRowNode,
+    AutoLinkNode,
+    LinkNode
+  ],
   onError(error: Error) {
     throw error;
   },
@@ -190,6 +217,14 @@ export default function Editor({initialEditorState, onChange }: { initialEditorS
           />
           <HistoryPlugin />
           <AutoFocusPlugin />
+          <HistoryPlugin />
+          <AutoFocusPlugin />
+          <CodeHighlightPlugin />
+          <ListPlugin />
+          <LinkPlugin />
+          <AutoLinkPlugin />
+          <ListMaxIndentLevelPlugin maxDepth={7} />
+          <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
           {/* <TreeViewPlugin /> */}
           <LexicalOnChangePlugin
             onChange={(editorState: EditorState) => getContent(editorState)}
