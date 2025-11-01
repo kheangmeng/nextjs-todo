@@ -297,7 +297,7 @@ export const BlogForm = ({data}: {data?: BlogResponse}) => {
                 </FormControl>
                 <MultiSelectContent>
                   <MultiSelectGroup>
-                    {tags?.map((tag) => (
+                    {tags?.length && tags?.map((tag) => (
                       <MultiSelectItem key={tag.id} value={String(tag.id)}>
                         {tag.title}
                       </MultiSelectItem>

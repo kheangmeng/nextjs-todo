@@ -23,7 +23,7 @@ export default function BlogPostCard({ post, onSelectPost }: BlogPostCardProps) 
           </div>
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{post.title}</h2>
           <p className="text-slate-500  dark:text-white text-sm">
-            By {post.user?.username} on {formatDate2(post.createdAt)}
+            By {post.author?.username} on {formatDate2(post.createdAt)}
           </p>
           <div className='flex items-center gap-2'>
             <Rating value={post.avgRate} className='my-3' readOnly>

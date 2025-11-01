@@ -37,7 +37,7 @@ import { type Session } from "next-auth";
 async function getList(accessToken: string): Promise<BlogResponse[]> {
   let remotePosts: { posts: any[] } | undefined = undefined;
   if (accessToken) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts/my-posts`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ export default function BlogListTable({session}: {session: Session}) {
   const query = searchParams.get('query');
   const [isPending, startTransition] = React.useTransition();
   const [loading, setLoading] = React.useState(false);
-  const { data: blogData, error, isLoading } = useSWR(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts`, () => getList(session?.user?.accessToken || ''))
+  const { data: blogData, error, isLoading } = useSWR(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts/my-posts`, () => getList(session?.user?.accessToken || ''))
 
   const noFilterFound = () => {
     if (blogData?.length === 0 && query) {
@@ -151,7 +151,7 @@ export default function BlogListTable({session}: {session: Session}) {
                 {blog.isPublished ? 'Published' : 'Draft'}
               </TableCell>
               <TableCell className="font-medium">
-                {blog.user?.username}
+                {blog.author?.username}
               </TableCell>
               <TableCell className="font-medium">
                 <div className="truncate w-[350px]">{blog.description}</div>

@@ -33,7 +33,33 @@ async function getBlogs({ tag }: { tag?: string }) {
   return remote
 }
 
+async function getTopRatedBlogs() {
+  // const session = await getServerSession(authOptions);
+  let remote: BlogResponse[] = [];
+  // if (session?.user?.accessToken) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts/top-rated?order=-id`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': `Bearer ${session.user.accessToken}`,
+        },
+      });
+      if (res.ok) {
+        const { posts } = (await res.json()) || [];
+        remote = posts || [];
+      } else {
+        console.error('External API error', res.status);
+      }
+    } catch (err) {
+      console.error('fetch external blogs error', err);
+    }
+  // }
+  return remote
+}
+
 async function getTags() {
+  console.log('getTags')
   // const session = await getServerSession(authOptions);
   let remote: Tag[] = [];
   // if (session?.user?.accessToken) {
@@ -62,15 +88,15 @@ async function getTags() {
 export default async function Page({ searchParams }: { searchParams: { tag: string } }) {
   const { tag } = await searchParams
 
-  const [remotePosts, remoteTags] = await Promise.all([
+  const [remotePosts, remoteTags, topRatedPosts] = await Promise.all([
     getBlogs({ tag }),
     getTags(),
+    getTopRatedBlogs(),
   ])
-  const postsToRender = remotePosts?.length ? remotePosts : blogPosts;
 
   return (
     <div className=" container mx-auto px-6 py-12 dark:bg-slate-900 dark:text-white">
-      <div className="flex justify-center mb-6 h-90"><BlogCarousel /></div>
+      <div className="flex justify-center mb-6 h-90"><BlogCarousel posts={remotePosts} /></div>
       <Card className='my-3'>
         {/* <h1 className="text-xl font-bold text-slate-800 dark:text-white text-center">Popular tags</h1> */}
         <div className='space-x-6 mx-6'>
@@ -89,18 +115,11 @@ export default async function Page({ searchParams }: { searchParams: { tag: stri
           </div>
         </div>
         <aside className="w-full md:w-1/5 lg:w-1/5">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-3 text-center">Top Rate</h2>
-          <div className="space-y-5">
-            <BlogCardAside />
-            <BlogCardAside />
-            <BlogCardAside />
-          </div>
-          <hr className="my-4" />
           <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-3 text-center">Popular Posts</h2>
           <div className="space-y-5">
-            <BlogCardAside />
-            <BlogCardAside />
-            <BlogCardAside />
+            {topRatedPosts.map(post => (
+              <BlogCardAside key={post.id} post={post} />
+            ))}
           </div>
         </aside>
       </div>

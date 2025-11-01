@@ -13,7 +13,7 @@ export interface BlogResponse {
   rateCount: number;
   createdAt: string;
   updatedAt: string;
-  user: UserProfile;
+  author: UserProfile;
   tags: Tag[];
   // publishedAt: string;
   // author: string;

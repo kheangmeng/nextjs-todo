@@ -1,5 +1,4 @@
 import BlogDetailWrapper from '@/components/blog-landing/blog-detail-wrapper';
-import { blogPosts } from '@/components/blog-landing/data';
 import { notFound } from 'next/navigation';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -8,7 +7,7 @@ import { BlogResponse } from '@/types';
 import { DisplayEditorContent } from '@/components/lexical-editor/DisplayEditorContent';
 
 async function getDetail(id: number): Promise<BlogResponse>{
-  const session = await getServerSession(authOptions);
+  // const session = await getServerSession(authOptions);
   let remotePosts: {post: any} | undefined = undefined;
   if (id) {
     try {
@@ -32,6 +31,31 @@ async function getDetail(id: number): Promise<BlogResponse>{
   return remotePosts?.post;
 }
 
+async function getRelatedBlogs(id: number, tags: string[]) {
+  // const session = await getServerSession(authOptions);
+  let remote: BlogResponse[] = [];
+  // if (session?.user?.accessToken) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/posts/related?postId=${id}&tags=${tags.join(',')}&order=-id`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': `Bearer ${session.user.accessToken}`,
+        },
+      });
+      if (res.ok) {
+        const { posts } = (await res.json()) || [];
+        remote = posts || [];
+      } else {
+        console.error('External API error', res.status);
+      }
+    } catch (err) {
+      console.error('fetch external blogs error', err);
+    }
+  // }
+  return remote
+}
+
 export default async function BlogDetail (props: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   const params = await props.params;
@@ -47,15 +71,18 @@ export default async function BlogDetail (props: { params: Promise<{ id: string 
   }
   const getImage = () => remotePost.image?.replace('600x400', '800x400') || undefined
 
-  const post = blogPosts.find(p => p.id === id);
-  const relatedPosts = blogPosts.filter(p => p.category === post?.category && p.id !== post.id).slice(0, 2);
+  const tags = remotePost.tags?.map(tag => tag.title) || []
+  const relatedPosts = await getRelatedBlogs(id, tags)
+
+  // const post = blogPosts.find(p => p.id === id);
+  // const relatedPosts = blogPosts.filter(p => p.category === post?.category && p.id !== post.id).slice(0, 2);
 
   return (
     <BlogDetailWrapper post={remotePost} relatedPosts={relatedPosts}>
       {/* <span className="text-md font-semibold text-blue-600 bg-blue-100 rounded-full px-4 py-1 self-start mb-4 inline-block">{remotePost.category}</span> */}
       <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white mb-4 leading-tight">{remotePost.title}</h1>
       <p className="text-slate-500 dark:text-slate-300 text-md mb-6">
-        Posted by <strong>{remotePost.user?.username}</strong> on {formatDate2(remotePost.createdAt)}
+        Posted by <strong>{remotePost.author?.username}</strong> on {formatDate2(remotePost.createdAt)}
       </p>
       <img src={getImage()} alt={remotePost?.title} className="w-full h-auto rounded-lg mb-8 shadow-md" />
       <DisplayEditorContent

@@ -3,6 +3,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { Card } from "@/components/ui/card"
 import { ProfileForm } from "@/components/blog-landing/profile-form"
 import { ChangePasswordForm } from "@/components/blog-landing/change-password-form"
+import { BlogBookmarkCard } from "@/components/blog-landing/blog-bookmark-card"
 
 export default async function Page({ searchParams }: { searchParams: { query: string } }) {
   const session = await getServerSession(authOptions);
@@ -17,12 +18,22 @@ export default async function Page({ searchParams }: { searchParams: { query: st
         <Card className="px-6">
           <h1 className="text-2xl font-semibold">Profile</h1>
           { session && <ProfileForm session={session} /> }
+
+          <hr />
+
+          <h1 className="text-2xl font-semibold">Change Password</h1>
+          <ChangePasswordForm />
         </Card>
       </div>
       <div className="w-full">
         <Card className="px-6">
-          <h1 className="text-2xl font-semibold">Change Password</h1>
-          <ChangePasswordForm />
+          <h1 className="text-2xl font-semibold">Bookmarks</h1>
+          <BlogBookmarkCard session={session} />
+          {/* <div className="space-y-6">
+            {blogPosts.map(relatedPost => (
+              <BlogBookmarkCard session={session} key={relatedPost.id} post={relatedPost} />
+            ))}
+          </div> */}
         </Card>
       </div>
     </div>

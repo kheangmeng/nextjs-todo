@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react';
 import { toast } from "sonner"
 import { SendHorizonal, Plus, BookmarkIcon } from "lucide-react"
 import { RelatedPostCard } from '@/components/blog-landing/related-post-card';
-import { BlogPost } from '@/components/blog-landing/data';
+// import { BlogPost } from '@/components/blog-landing/data';
 import { TimeAgo } from '@/components/TimeAgo';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Rating, RatingButton } from '@/components/ui/shadcn-io/rating';
@@ -22,11 +22,11 @@ import {
 } from "@/components/ui/input-group"
 import SignUpDialog from './signup-dialog';
 import type { BlogResponse, Comment, CommentResponse, Rate, Bookmark } from '@/types';
-import { Session } from 'next-auth';
+import type { Session } from 'next-auth';
 
 interface BlogDetailWrapperProps {
   post: BlogResponse;
-  relatedPosts: BlogPost[];
+  relatedPosts: BlogResponse[];
   children: React.ReactNode;
 }
 export default function BlogDetailWrapper ({ post, relatedPosts, children }: BlogDetailWrapperProps) {

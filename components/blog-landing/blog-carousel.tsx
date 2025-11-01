@@ -10,8 +10,9 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
+import { BlogResponse } from '@/types';
 
-export function BlogCarousel() {
+export function BlogCarousel({ posts }: { posts: BlogResponse[] }) {
   const plugin = React.useRef(
     Autoplay({ delay: 2000, stopOnInteraction: true })
   )
@@ -24,17 +25,22 @@ export function BlogCarousel() {
       onMouseLeave={plugin.current.reset}
     >
       <CarouselContent>
-        {Array.from({ length: 5 }).map((_, index) => (
-          <CarouselItem key={index}>
-            <div className="p-1">
-              <Card className="w-full h-90">
-                <CardContent className="flex w-full h-full items-center justify-center p-6">
-                  <span className="text-4xl font-semibold">{index + 1}</span>
-                </CardContent>
-              </Card>
-            </div>
-          </CarouselItem>
+        {/* {Array.from({ length: 5 }).map((_, index) => ( */}
+        { posts.map((post, index) => (
+            <CarouselItem key={index}>
+              <div className="p-1">
+                {/* <Card className="w-full h-90">
+                  <CardContent className="flex w-full h-full items-center justify-center p-6">
+                    <span className="text-4xl font-semibold">{index + 1}</span>
+                  </CardContent>
+                </Card> */}
+                <div className="w-full h-90 rounded-lg overflow-hidden">
+                  <img src={post.image?.replace('600x400', '800x400') || undefined} alt={post.title} className="w-full h-full object-cover" />
+                </div>
+              </div>
+            </CarouselItem>
         ))}
+        {/* ))} */}
       </CarouselContent>
       <CarouselPrevious />
       <CarouselNext />
