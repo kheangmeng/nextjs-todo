@@ -2,31 +2,25 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCommandShortcut } from '@/hooks/use-command-shortcut';
 
-const useCommandShortcut = ({key, modifier, callback}: {key: string, modifier: string, callback: () => void}) => {
-  const handler = useCallback((event: KeyboardEvent) => {
-    // Check if the primary key matches (case-insensitive for 'k')
-    if (event.key.toLowerCase() !== key.toLowerCase()) return;
-
-    // Determine if the required modifier (Cmd/Win or Ctrl) is pressed
-    const isModifierPressed = event.metaKey || event.ctrlKey;
-
-    if (isModifierPressed) {
-      event.preventDefault(); // Prevent browser defaults (like bookmarking)
-      callback();
-    }
-  }, [key, callback]);
-
-  useEffect(() => {
-    window.addEventListener('keydown', handler);
-    return () => {
-      window.removeEventListener('keydown', handler);
-    };
-  }, [handler]);
-};
+interface SearchResult {
+  title: string;
+  description: string;
+}
+const data: SearchResult[] = [
+  { title: 'react', description: 'React is a JavaScript library for building user interfaces.' },
+  { title: 'angular', description: 'Angular is a TypeScript-based open-source web application framework'},
+  { title: 'vue', description: 'Vue.js is a progressive framework for building user interfaces'},
+  { title: 'shade/cn', description: 'Clean, modern building blocks. Copy and paste into your apps. Works with all React frameworks.' },
+  { title: 'tailwindcss', description: 'Tailwind CSS is a utility-first CSS framework'},
+  { title: 'node.js', description: 'Node.js is a cross-platform, open-source server environment that can run' },
+]
 
 // { isOpen, onClose }: { isOpen: boolean, onClose: () => void }
 export default function CommandPalette() {
+  const [search, setSearch] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = useCallback(() => setIsOpen(false), []);
 
@@ -52,6 +46,12 @@ export default function CommandPalette() {
       window.removeEventListener('keydown', handleEscape);
     };
   }, [isOpen, handleClose]);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    const results = data.filter(item => item.title.toLowerCase().includes(e.target.value.toLowerCase()));
+    setSearchResults(results);
+  }
 
   return (
     <AnimatePresence>
@@ -85,6 +85,8 @@ export default function CommandPalette() {
                   autoFocus
                   // This input is subject to the new useClearOnEscape hook.
                   placeholder="Type a command or search..."
+                  value={search}
+                  onChange={handleSearch}
                   className="flex-grow bg-transparent text-white text-lg placeholder-gray-500 focus:outline-none"
                 />
               </div>
@@ -93,23 +95,36 @@ export default function CommandPalette() {
             <div className="p-4 h-48 overflow-y-auto text-gray-400">
               <p className="text-sm font-semibold mb-2 text-teal-400">Recent Commands</p>
               <ul className="space-y-1">
-                <li className="p-2 rounded-lg hover:bg-gray-700 cursor-pointer transition">
-                  <span className="text-white">Toggle Dark Mode</span>
-                  <span className="float-right text-xs bg-gray-700 px-2 py-0.5 rounded-md">T</span>
-                </li>
-                <li className="p-2 rounded-lg hover:bg-gray-700 cursor-pointer transition">
-                  <span className="text-white">Go to Settings</span>
-                  <span className="float-right text-xs bg-gray-700 px-2 py-0.5 rounded-md">G S</span>
-                </li>
-                <li className="p-2 rounded-lg hover:bg-gray-700 cursor-pointer transition">
-                  <span className="text-white">Create New Document</span>
-                  <span className="float-right text-xs bg-gray-700 px-2 py-0.5 rounded-md">N</span>
-                </li>
+                {
+                  searchResults.map((result, index) => (
+                    <li key={index} className="p-2 rounded-lg hover:bg-gray-700 cursor-pointer transition">
+                      <span className="text-white font-semibold">{result.title}: </span>
+                      <span className='text-gray-500 text-sm'>{result.description}</span>
+                    </li>
+                ))}
+                {
+                  !searchResults.length &&
+                    <>
+                      <li className="p-2 rounded-lg hover:bg-gray-700 cursor-pointer transition">
+                        <span className="text-white">Toggle Dark Mode</span>
+                        <span className="float-right text-xs bg-gray-700 px-2 py-0.5 rounded-md">T</span>
+                      </li>
+                      <li className="p-2 rounded-lg hover:bg-gray-700 cursor-pointer transition">
+                        <span className="text-white">Go to Settings</span>
+                        <span className="float-right text-xs bg-gray-700 px-2 py-0.5 rounded-md">G S</span>
+                      </li>
+                      <li className="p-2 rounded-lg hover:bg-gray-700 cursor-pointer transition">
+                        <span className="text-white">Create New Document</span>
+                        <span className="float-right text-xs bg-gray-700 px-2 py-0.5 rounded-md">N</span>
+                      </li>
+                    </>
+                }
+
               </ul>
 
-              <p className="text-sm text-gray-500 mt-4 pt-4 border-t border-gray-700/50 text-center">
+              {/* <p className="text-sm text-gray-500 mt-4 pt-4 border-t border-gray-700/50 text-center">
                 Search functionality and command execution would be implemented here.
-              </p>
+              </p> */}
             </div>
 
             <div className="p-2 bg-gray-700/30 text-right text-xs text-gray-500 border-t border-gray-700/50">
