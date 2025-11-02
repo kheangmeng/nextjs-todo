@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Kbd, KbdGroup } from "@/components/ui/kbd"
 import CommandPalette from "@/components/command-palette";
 import { BlogProfileMenu } from "@/components/blog-landing/blog-profile-menu";
+import BlogLayoutWrapper from '@/components/blog-landing/blog-layout-wrapper';
 
 const Header = () => {
   return (
@@ -52,12 +53,14 @@ export default function Layout({
 }>) {
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-900 dark:text-white min-h-screen font-sans">
-      <Header />
-      <main className="min-h-[80vh]">
-        {children}
-      </main>
-      <Footer />
-    </div>
+    <BlogLayoutWrapper>
+      <div className="bg-slate-50 dark:bg-slate-900 dark:text-white min-h-screen font-sans">
+        <Header />
+        <main className="min-h-[80vh]">
+          {children}
+        </main>
+        <Footer />
+      </div>
+    </BlogLayoutWrapper>
   );
 }

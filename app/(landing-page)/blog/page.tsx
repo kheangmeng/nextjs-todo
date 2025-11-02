@@ -1,4 +1,3 @@
-import { blogPosts } from '@/components/blog-landing/data';
 import BlogPostCard from '@/components/blog-landing/blog-card';
 import { BlogCarousel } from '@/components/blog-landing/blog-carousel';
 import { BlogCardAside } from '@/components/blog-landing/blog-card-aside';
@@ -59,7 +58,6 @@ async function getTopRatedBlogs() {
 }
 
 async function getTags() {
-  console.log('getTags')
   // const session = await getServerSession(authOptions);
   let remote: Tag[] = [];
   // if (session?.user?.accessToken) {
