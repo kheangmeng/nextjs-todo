@@ -52,7 +52,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import LaxicalEditor from "@/components/lexical-editor";
+// import LaxicalEditor from "@/components/lexical-editor";
+import Tiptap from "@/components/tiptab-editor/tiptab";
 import ImagePlaceHolder from "@/components/image-placeholder";
 import { TagForm } from "./tag-form";
 import type { Tag, BlogResponse } from '@/types'
@@ -124,10 +125,10 @@ export const BlogForm = ({data}: {data?: BlogResponse}) => {
   })
 
   const loadContent = () => {
-    if(isValidJSON(data?.content || '')) {
-      return data?.content
-    }
-    return undefined;
+    // if(isValidJSON(data?.content || '')) {
+    //   return data?.content
+    // }
+    return  data?.content || '';
   }
   const handleGetImage = (title: string, url: string) => {
     imgRef.current = url;
@@ -269,7 +270,19 @@ export const BlogForm = ({data}: {data?: BlogResponse}) => {
               <FormLabel>Content</FormLabel>
               <FormControl>
                 {/* <Textarea placeholder="content" {...field} /> */}
-                <LaxicalEditor initialEditorState={loadContent()} onChange={(val) => field.onChange(val)}/>
+                {/* <LaxicalEditor initialEditorState={loadContent()} onChange={(val) => field.onChange(val)}/> */}
+                {/* `
+                    <h3 style="text-align:center">
+                      Hello World! 🌎 ️
+                    </h3>
+                    <p>This is a basic example of implementing images. Drag to re-order.</p>
+                    <img src="https://placehold.co/600x400" />
+                    <img src="https://placehold.co/800x400" />
+                  ` */}
+                <Tiptap
+                  content={loadContent()}
+                  getContent={(html) => field.onChange(html)}
+                />
               </FormControl>
               <FormDescription>
                 This is your public post content.
