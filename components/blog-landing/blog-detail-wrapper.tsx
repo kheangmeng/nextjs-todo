@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
-import useSWR from 'swr'
+import React, { useEffect, useState, use, Suspense } from 'react';
+// import useSWR from 'swr'
 import Link from 'next/link';
 import { useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react';
@@ -27,10 +27,16 @@ import type { Session } from 'next-auth';
 interface BlogDetailWrapperProps {
   post: BlogResponse;
   relatedPosts: BlogResponse[];
+  commentsPromise: Promise<CommentResponse[]>;
+  bookmarkByUserPromise: Promise<Bookmark> | Promise<undefined>;
+  ratePromise: Promise<Rate> | Promise<undefined>;
   children: React.ReactNode;
 }
-export default function BlogDetailWrapper ({ post, relatedPosts, children }: BlogDetailWrapperProps) {
+export default function BlogDetailWrapper ({ commentsPromise, bookmarkByUserPromise, ratePromise, post, relatedPosts, children }: BlogDetailWrapperProps) {
   const { data: session, status } = useSession();
+  const bookmarkByUser = use(bookmarkByUserPromise);
+  const rateByUser = use(ratePromise);
+  const comments = use(commentsPromise);
   // const  [states, setStates] = useState({
   //   bookmark: false,
   // })
@@ -57,7 +63,9 @@ export default function BlogDetailWrapper ({ post, relatedPosts, children }: Blo
             </Link>
             <div>
               { session
-                  ?<BookmarkAuthSection session={session} />
+                  ? <Suspense fallback={<div className='text-lg font-semibold mt-6'>Loading...</div>}>
+                      <BookmarkAuthSection bookmarkByUser={bookmarkByUser} session={session} />
+                    </Suspense>
                   :<SignUpDialog>
                     <IconButton
                       icon={BookmarkIcon}
@@ -73,13 +81,17 @@ export default function BlogDetailWrapper ({ post, relatedPosts, children }: Blo
 
           <div className='mt-6'>
             { session
-                ? <RatingAuthSection avgRate={post?.avgRate} session={session} status={status} />
+                ? <Suspense fallback={<div className='text-lg font-semibold mt-6'>Loading...</div>}>
+                    <RatingAuthSection rateByUser={rateByUser} avgRate={post?.avgRate} session={session} status={status} />
+                  </Suspense>
                 : <RatingSection avgRate={post?.avgRate} />
             }
           </div>
 
           <div className='mt-6'>
-            <CommentSection />
+            <Suspense fallback={<div className='text-lg font-semibold mt-6'>Loading comments...</div>}>
+              <CommentSection commentsData={comments} />
+            </Suspense>
           </div>
         </div>
 
@@ -98,13 +110,13 @@ export default function BlogDetailWrapper ({ post, relatedPosts, children }: Blo
   );
 };
 // ---------START BOOKMARK-------------
-function BookmarkAuthSection({ session }: { session: Session }) {
+function BookmarkAuthSection({ session, bookmarkByUser }: { session: Session, bookmarkByUser?: Bookmark }) {
   const { id: postId } = useParams()
   const [bookmark, setBookmark] = useState(false);
-  const { data: bookmarkByUser, error, isLoading } = useSWR(
-    `/api/bookmark/post?postId=${postId}`,
-    () => fetchBookmarkByUser(session?.user?.accessToken || '', `${postId}`)
-  )
+  // const { data: bookmarkByUser, error, isLoading } = useSWR(
+  //   `/api/bookmark/post?postId=${postId}`,
+  //   () => fetchBookmarkByUser(session?.user?.accessToken || '', `${postId}`)
+  // )
 
   useEffect(() => {
     if(bookmarkByUser) {
@@ -151,49 +163,24 @@ function BookmarkAuthSection({ session }: { session: Session }) {
     />
   </>
 }
-
-async function fetchBookmarkByUser(accessToken: string, postId: string): Promise<Bookmark> {
-  let remoteBookmark: {bookmark: any} | undefined = undefined;
-  if (postId && accessToken) {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/bookmarks/post/${postId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
-      });
-      if (res.ok) {
-        const { bookmark } = (await res.json()) || undefined;
-        remoteBookmark = bookmark
-        // console.log('user bookmark', bookmark?.bookmark);
-      } else {
-        console.error('External API error', res.status);
-      }
-    } catch (err) {
-      console.error('fetch external bookmark error', err);
-    }
-  }
-  return remoteBookmark?.bookmark;
-}
-
 // ---------END BOOKMARK-------------
 
 
 // ---------START RATE-------------
 interface RateSectionProp {
   avgRate: number;
+  rateByUser?: Rate;
   session: Session;
   status: "authenticated" | "loading" | "unauthenticated";
 }
-function RatingAuthSection ({ avgRate, session, status }: RateSectionProp) {
+function RatingAuthSection ({ avgRate, session, status, rateByUser }: RateSectionProp) {
   const { id: postId } = useParams()
   // const { data: session, status } = useSession();
   const [rating, setRating] = useState(0);
-  const { data: rateByUser, error, isLoading } = useSWR(
-    session ? `/api/rate/post?postId=${postId}` : null,
-    () => fetchRateByUser(session?.user?.accessToken || '', `${postId}`)
-  )
+  // const { data: rateByUser, error, isLoading } = useSWR(
+  //   session ? `/api/rate/post?postId=${postId}` : null,
+  //   () => fetchRateByUser(session?.user?.accessToken || '', `${postId}`)
+  // )
 
   useEffect(() => {
     if(rateByUser) {
@@ -252,48 +239,18 @@ function RatingSection ({ avgRate }: { avgRate: number }) {
     </SignUpDialog>
   </>
 }
-async function fetchRateByUser(accessToken: string, postId: string): Promise<Rate> {
-  let remoteRate: {rate: any} | undefined = undefined;
-  if (postId && accessToken) {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/rates/post/${postId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
-      });
-      if (res.ok) {
-        const { rate } = (await res.json()) || undefined;
-        remoteRate = rate
-        // console.log('user rate', rate?.rate);
-      } else {
-        console.error('External API error', res.status);
-      }
-    } catch (err) {
-      console.error('fetch external rate error', err);
-    }
-  }
-  return remoteRate?.rate;
-}
 // ---------END RATE-------------
 
 // ---------START COMMENT-------------
-function CommentSection() {
+function CommentSection({ commentsData }: { commentsData: CommentResponse[] }) {
   const { id: postId } = useParams()
   const { data: session, status } = useSession();
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState<Comment[]>([])
-  const { data: commentData, error, isLoading } = useSWR(
-    `/api/comments?postId=${postId}&order=-createdAt`,
-    () => fetchCommentList(`${postId}`)
-  )
-
-  useEffect(() => {
-    if(commentData) {
-      setComments(() => [...mapComments(commentData || [])])
-    }
-  },  [commentData])
+  // const { data: commentData, error, isLoading } = useSWR(
+  //   `/api/comments?postId=${postId}&order=-createdAt`,
+  //   () => fetchCommentList(`${postId}`)
+  // )
 
   const mapComments = (data: CommentResponse[]): Comment[] => {
     return data.map((c) => ({
@@ -321,7 +278,6 @@ function CommentSection() {
         });
         if (res.ok) {
           const result = (await res.json()) || undefined;
-          // console.log('result::', result)
           const row = {
             id: result.id,
             username: session.user.username || '',
@@ -329,8 +285,7 @@ function CommentSection() {
             text,
           }
           setComment('')
-          setComments((v) => [row, ...v])
-          // console.log('comment', result);
+          setComments((v) => [row, ...mapComments(commentsData || [])])
         } else {
           console.error('External API error', res.status);
         }
@@ -342,7 +297,7 @@ function CommentSection() {
   }
 
   return <>
-    <p className='font-bold text-slate-800 dark:text-white text-lg mb-2'>Comments ({commentData?.length})</p>
+    <p className='font-bold text-slate-800 dark:text-white text-lg mb-2'>Comments</p>
     <InputGroup>
       { status !== 'authenticated' ?
           <SignUpDialog>
@@ -380,13 +335,20 @@ function CommentSection() {
       </InputGroupAddon>
     </InputGroup>
 
-    { comments.map((c) => <UserComment comment={c} />) }
+    {(comments.length && comments || mapComments(commentsData || [])).map((c) => <UserComment key={'comment' + c.id} comment={c} />)}
+    {/* <Suspense fallback={<div className='text-lg font-semibold mt-6'>Loading comments...</div>}>
+      { mapComments(comments || [])).map((c) => <UserComment key={'comment' + c.id} comment={c} />}
+    </Suspense> */}
+    {/* { isLoading ?
+        <div className='text-lg font-semibold'>Loading...</div> :
+        (comments.length && comments || mapComments(commentData || [])).map((c) => <UserComment key={'comment' + c.id} comment={c} />)
+    } */}
   </>
 }
 
 function UserComment({ comment }: {comment: Comment}) {
   return (
-    <div key={'comment' + comment.id} className='flex items-start mt-6 gap-3'>
+    <div className='flex items-start mt-6 gap-3'>
       <Avatar className="rounded-md">
         <AvatarImage
           src="https://avatars.githubusercontent.com/u/20764729?s=48&v=4"
@@ -402,27 +364,5 @@ function UserComment({ comment }: {comment: Comment}) {
       </div>
     </div>
   )
-}
-async function fetchCommentList(postId: string): Promise<CommentResponse[]> {
-  let remotePosts: { comments: any[] } | undefined = undefined;
-  // if (accessToken) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/comments?postId=${postId}&order=-createdAt`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': `Bearer ${accessToken}`,
-      },
-    });
-    if (!res.ok) {
-      const error: any = new Error('An error occurred while fetching the data.')
-      error.info = await res.json()
-      error.status = res.status
-      throw error
-    }
-
-    const { comments } = (await res.json()) || [];
-    remotePosts = comments
-  // }
-  return remotePosts?.comments || []
 }
 // ---------END BOOKMARK-------------

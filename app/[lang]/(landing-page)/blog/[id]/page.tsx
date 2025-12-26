@@ -3,9 +3,80 @@ import { notFound } from 'next/navigation';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { formatDate2 } from '@/lib/utils';
-import { BlogResponse } from '@/types';
+import { BlogResponse, Bookmark, CommentResponse, Rate } from '@/types';
 import { DisplayEditorContent } from '@/components/lexical-editor/DisplayEditorContent';
 
+
+async function fetchCommentList(postId: string): Promise<CommentResponse[]> {
+  let remotePosts: { comments: any[] } | undefined = undefined;
+  // if (accessToken) {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/comments?postId=${postId}&order=-createdAt`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+    if (!res.ok) {
+      const error: any = new Error('An error occurred while fetching the data.')
+      error.info = await res.json()
+      error.status = res.status
+      throw error
+    }
+
+    const { comments } = (await res.json()) || [];
+    remotePosts = comments
+  // }
+  return remotePosts?.comments || []
+}
+async function fetchRateByUser(accessToken: string, postId: string): Promise<Rate> {
+  let remoteRate: {rate: any} | undefined = undefined;
+  if (postId && accessToken) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/rates/post/${postId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      if (res.ok) {
+        const { rate } = (await res.json()) || undefined;
+        remoteRate = rate
+        // console.log('user rate', rate?.rate);
+      } else {
+        console.error('External API error', res.status);
+      }
+    } catch (err) {
+      console.error('fetch external rate error', err);
+    }
+  }
+  return remoteRate?.rate;
+}
+async function fetchBookmarkByUser(accessToken: string, postId: string): Promise<Bookmark> {
+  let remoteBookmark: {bookmark: any} | undefined = undefined;
+  if (postId && accessToken) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API}/api/bookmarks/post/${postId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      if (res.ok) {
+        const { bookmark } = (await res.json()) || undefined;
+        remoteBookmark = bookmark
+        // console.log('user bookmark', bookmark?.bookmark);
+      } else {
+        console.error('External API error', res.status);
+      }
+    } catch (err) {
+      console.error('fetch external bookmark error', err);
+    }
+  }
+  return remoteBookmark?.bookmark;
+}
 async function getDetail(id: number): Promise<BlogResponse>{
   // const session = await getServerSession(authOptions);
   let remotePosts: {post: any} | undefined = undefined;
@@ -73,12 +144,15 @@ export default async function BlogDetail (props: { params: Promise<{ id: string 
 
   const tags = remotePost.tags?.map(tag => tag.title) || []
   const relatedPosts = await getRelatedBlogs(id, tags)
+  const commentsPromise = fetchCommentList(String(remotePost.id));
+  const ratePromise = session?.user?.accessToken ? fetchRateByUser(session.user.accessToken, String(remotePost.id)) : Promise.resolve(undefined);
+  const bookmarkPromise = session?.user?.accessToken ? fetchBookmarkByUser(session.user.accessToken, String(remotePost.id)) : Promise.resolve(undefined);
 
   // const post = blogPosts.find(p => p.id === id);
   // const relatedPosts = blogPosts.filter(p => p.category === post?.category && p.id !== post.id).slice(0, 2);
 
   return (
-    <BlogDetailWrapper post={remotePost} relatedPosts={relatedPosts}>
+    <BlogDetailWrapper commentsPromise={commentsPromise} ratePromise={ratePromise} bookmarkByUserPromise={bookmarkPromise} post={remotePost} relatedPosts={relatedPosts}>
       {/* <span className="text-md font-semibold text-blue-600 bg-blue-100 rounded-full px-4 py-1 self-start mb-4 inline-block">{remotePost.category}</span> */}
       <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white mb-4 leading-tight">{remotePost.title}</h1>
       <p className="text-slate-500 dark:text-slate-300 text-md mb-6">
